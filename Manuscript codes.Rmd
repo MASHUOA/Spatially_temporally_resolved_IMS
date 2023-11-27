@@ -1,56 +1,40 @@
 ---
-title: "Manuscript R markdown file"
-author: "Dingchang Shi"
-date: "2023-11-07"
-output: html_document
+title: "Annotation and visualisation of spatially and temporally resolved, isotopically-labelled imaging mass spectrometry metabolomics data"
+author: "Dingchang Shi, George Guo"
+output:
+  github_document:
+    toc: true
+    toc_depth: 2
+  html_document: 
+    toc: yes
+    toc_float: yes
+    collapsed: no
+    theme: spacelab
+    df_print: tibble
+    highlight: zenburn
+    fig_width: 10
+    fig_height: 10
+    number_sections: yes
+  word_document: default
+  pdf_document: default
+  md_document:
+    variant: gfm
+vignette: >
+  %\VignetteIndexEntry{1. HiTMaP}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
+
+
 # 1. Initialization settings and functions
-```{r setup, include=T}
 
-match_mz = function(x, ref, tol = 1e-10,unit=c("Da","ppm"))
+## 1.1 Global functions
 
-{
-
- 
-
-  sref = sort(ref)
-
-  i = findInterval(x, sref, all.inside = TRUE)
-
-  dif1 = abs(x - sref[i])
-
-  dif2 = abs(x - sref[i + 1])
-
-  dif = dif1 > dif2
-
-  dif1[dif] = dif2[dif]
-
-  i[dif] = i[dif]+1
-
-  res_indx<-rep(NA,length(x))
-
- 
-
-  if (unit[1]=="ppm"){
-
-    tol_ppm<-tol
-
-    tol<-tol_ppm*x/1000000
-
-  }
-
- 
-
-  res_indx[dif1 <= tol]<-sref[i[dif1 <= tol]]
-
-  res_indx
-
- 
-
-}
-
-
+```{r, eval=F , setup, include=F}
 
 
 post_mod<- function (fig, point_size){for (n in 1: length(fig[["x"]][["data"]])){
@@ -70,10 +54,10 @@ set.seed(9)
 if(!require("correally")) devtools::install_github("addiversitas/correally",upgrade = "never", quiet = T)
 knitr::opts_chunk$set(
 	echo = TRUE,
-	message = FALSE,
-	warning = FALSE,
+	fig.height = 12,
 	fig.width = 12,
-	fig.height = 12
+	message = FALSE,
+	warning = FALSE
 )
 init.global.vars <- function(anal.type){
   # other global variables
@@ -141,6 +125,7 @@ init.global.vars <- function(anal.type){
   #api.base <<- "132.216.38.6:8987"
 
 }
+
 load_Rserve <- function(){
   
   installed <- c("Rserve") %in% rownames(installed.packages())
@@ -154,123 +139,6 @@ load_Rserve <- function(){
   }
 }
 .on.public.web <<- F
-
-annotate_peak<-function(deconv_peaklist,
-                        wd=getwd(),
-                        adducts=c("M-H","M+Cl"),
-                        ppm=5,
-                        candidate_list=NULL,
-                        attachHMDB=T,
-                        signal_thres=0,
-                        isotope_sub=NULL,
-                        BPPARAM=bpparam(),
-                        workdir_hmdb="C:/Users/admgguo484/Documents/keggdb/",
-                        atom_isotope_sub=NULL){
-  library(pacman)
-  library(HiTMaP)
-  suppressMessages(suppressWarnings(p_load(RColorBrewer,RCurl,bitops,magick,ggplot2,reticulate,dplyr,stringr,tcltk,data.table,doParallel,
-         iterators,foreach,protViz,cleaver,MALDIquant,Biostrings,XVector,IRanges,Cardinal,Rdisop,
-         ProtGenerics,S4Vectors,stats4,EBImage,
-         BiocParallel,BiocGenerics,parallel,stats,graphics,grDevices,utils,datasets,methods)))
-threshold=0.00
-  
-  Quant_list="C:\\Users\\admgguo484\\Documents\\omics software\\maldiimaging\\Maldi_imaging - Copy\\DB\\SMPdb.csv"
-  cal.mz=F
-  mzlist_bypass=T
-  PMF_analysis=TRUE
-  Protein_feature_summary=T
-  plot_cluster_image=T
-  plot_style="fleximaging"
-  Peptide_feature_summary=T
-  parallel=detectCores()/2
-  Spectrum_feature_summary=T
-  Region_feature_summary=T
-  Region_feature_analysis=T
-  plot_each_metabolites=T
-   Cluster_level="High"
-  ClusterID_colname="Name"
-  Region_feature_analysis_bar_plot=T
-  norm_datafiles=T
-  norm_Type="Median"
-  mzrange=NULL
-  Rotate_IMG=NULL
-  message(paste(try(detectCores()), "Cores detected,",parallel, "threads will be used for computing"))
-  
-  database = Quant_list
-  cal.mz = T
-   bypass=F
- if (attachHMDB){
-  Meta_feature_list<-Meta_feature_list_fun(workdir=workdir_hmdb,
-                                           database = "SMPdb.csv",
-                                           adducts=adducts,
-                                           cal.mz = T,
-                                           atom_isotope_sub=atom_isotope_sub,
-                                           bypass=F)
-  
-  
- }else{
-    Meta_feature_list<-NULL
-  }
-
-if(!is.null(candidate_list)){
-  required_col=c("mz","Metabolite.Name","adduct","formula","charge","mass")
-  candidate_list=data_test_rename(required_col,candidate_list) 
-  if (is.null(candidate_list$Isotype)) candidates$Isotype="Normal"
-  Meta_feature_list<-rbind(candidate_list,Meta_feature_list)
-}
-
-if (!is.null(isotope_sub)){
-  
-}
-
-Meta_feature_list$formula=paste(Meta_feature_list$formula,Meta_feature_list$Isotype,sep="@")
-aggregate<-Meta_feature_list[,c("Metabolite.Name","formula")]
-aggregate<-aggregate %>%  group_by(formula) %>% summarize(Metabolite.Name=paste(Metabolite.Name,  collapse = ";"))
-Meta_feature_list$Metabolite.Name<-NULL
-aggregate<-merge(aggregate,unique(Meta_feature_list[,colnames(Meta_feature_list)!="Metabolite.Name"]),by="formula",all.y=F,all.x=T,drop=T)
-
-Meta_feature_list<-aggregate 
-deconv_peaklistsearch<-deconv_peaklist
-deconv_peaklistsearch$response<-deconv_peaklist$intensities
-PC1_top_spec<-deconv_peaklistsearch[,c("m.z","response")]
-  PC1_top_spec$intensities<-round(PC1_top_spec$response/max(PC1_top_spec$response),digits = 8)
-  finalsearchlist<-Meta_feature_list['&'(Meta_feature_list$mz<=max(PC1_top_spec$m.z),Meta_feature_list$mz>=min(PC1_top_spec$m.z)),]
-  searchmz<-NULL
-  searchmz$mz<-unique(finalsearchlist$mz)
-  
-  
-  PMFsum_para_obmz<-function(pimmzlist,spectrumlist,ppm){
-    lowmz<-pimmzlist-pimmzlist*ppm/1000000
-    highmz<-pimmzlist+pimmzlist*ppm/1000000
-    return(sum(spectrumlist[data.table::between(spectrumlist[,"m.z"], lowmz, highmz,incbounds=T),2]))
-  }
-  if (length(searchmz$mz)>=500){
-   searchhit<-bplapply(searchmz$mz,PMFsum_para_obmz,PC1_top_spec,ppm=ppm,BPPARAM = BPPARAM) 
-  }else{
-   searchhit<-bplapply(searchmz$mz,PMFsum_para_obmz,PC1_top_spec,ppm=ppm,BPPARAM = SerialParam()) 
-  }
-  
-  searchhit<-unlist(searchhit)
-  searchmz$intensity<-searchhit
-  searchmz<-as.data.frame(searchmz)
-  searchmz<-searchmz[searchmz$intensity!=0,]
-  
-  searchmerge<-merge(searchmz,finalsearchlist,by="mz")
-  searchmerge.pathway.metabolite<-unique(searchmerge[,c("mz","Metabolite.Name")])
-  searchmerge.metabolite<-unique(searchmerge[,c("mz","Metabolite.Name","formula","adduct","intensity")])
-  library(tidyverse)
-  #searchmerge.metabolite.table<-searchmerge.metabolite %>% group_by_at("formula") %>% summarize_all(unique) %>% 
-  #summarize_all(funs(paste0(unique(.[!is.na(.)]), collapse= "@")))
-  searchmerge.metabolite.table<-searchmerge.metabolite %>% group_by_at(vars(formula)) %>% 
-  summarize_all(funs(paste0(unique(.[!is.na(.)]), collapse= "@")))
-  searchmerge.metabolite.table$intensity<-as.numeric(searchmerge.metabolite.table$intensity)
-  searchmerge.metabolite.table$Metabolite.Name<-unlist(lapply(searchmerge.metabolite.table$Metabolite.Name,function(x){
-    str_split(x,"@")[[1]][1]}
-    ))
-  searchmerge.metabolite.table_int<-searchmerge.metabolite.table[abs(searchmerge.metabolite.table$intensity)>signal_thres,]
-  searchmerge.metabolite.table$mz<-as.numeric(searchmerge.metabolite.table$mz)
-return(searchmerge.metabolite.table)
-}
 
 load_pixel_label<-function(combinedimdata,datafile_base,workdir,coordata_file="coordata.csv",pixel_idx_col=base::row.names,label_col="pattern",...){
   library(Cardinal)
@@ -315,138 +183,8 @@ library(dplyr)
 }
 
 
-my.filter.var <- function(mSetObj=NA, filter, qcFilter, rsd){
-  
-  #mSetObj <- MetaboAnalystR:::get.mSet(mSetObj);
-  
-  #Reset to default
-  mSetObj$dataSet$filt <- NULL; 
-  
-  int.mat <- as.matrix(mSetObj$dataSet$proc);
-  cls <- mSetObj$dataSet$proc.cls;
-  
-  # save a copy
-  mSetObj$dataSet$filt.cls <- cls;
-  if(substring(mSetObj$dataSet$format,4,5)=="ts"){
-    mSetObj$dataSet$filt.facA <- mSetObj$dataSet$proc.facA; 
-    mSetObj$dataSet$filt.facB <- mSetObj$dataSet$proc.facB; 
-  }
-  
-  msg <- "";
-  if(qcFilter == "T"){
-    rsd <- rsd/100;
-    # need to check if QC exists
-    qc.hits <- tolower(as.character(cls)) %in% "qc";
-    if(sum(qc.hits) > 2){ # require at least 3 QC for RSD
-      qc.mat <- int.mat[qc.hits,];
-      sds <- apply(qc.mat, 2, sd, na.rm=T);
-      mns <- apply(qc.mat, 2, mean, na.rm=T);
-      rsd.vals <- abs(sds/mns);  
-      gd.inx <- rsd.vals < rsd;
-      int.mat <- int.mat[,gd.inx];
-      msg <- paste("Removed ", sum(!gd.inx), " features based on QC RSD values. QC samples are still kept. You can remove them later.");
-    }else if(sum(qc.hits) > 0){
-#      AddErrMsg("RSD requires at least 3 QC samples, and only non-QC based filtering can be applied.");
-      return(0);
-    }else{
-#      AddErrMsg("No QC Samples (with class label: QC) found.  Please use non-QC based filtering.");
-      return(0);
-    }
-  }
-  
-  feat.num <- ncol(int.mat);
-  feat.nms <- colnames(int.mat);
-  nm <- NULL;
-  if(filter == "none" && feat.num < 5000){ # only allow for less than 4000
-    remain <- rep(TRUE, feat.num);
-    msg <- paste(msg, "No non-QC based data filtering was applied");
-  }else{
-    if (filter == "rsd" ){
-      sds <- apply(int.mat, 2, sd, na.rm=T);
-      mns <- apply(int.mat, 2, mean, na.rm=T);
-      filter.val <- abs(sds/mns);
-      nm <- "Relative standard deviation";
-    }else if (filter == "nrsd" ){
-      mads <- apply(int.mat, 2, mad, na.rm=T);
-      meds <- apply(int.mat, 2, median, na.rm=T);
-      filter.val <- abs(mads/meds);
-      nm <- "Non-paramatric relative standard deviation";
-    }else if (filter == "mean"){
-      filter.val <- apply(int.mat, 2, mean, na.rm=T);
-      nm <- "mean";
-    }else if (filter == "sd"){
-      filter.val <- apply(int.mat, 2, sd, na.rm=T);
-      nm <- "standard deviation";
-    }else if (filter == "mad"){
-      filter.val <- apply(int.mat, 2, mad, na.rm=T);
-      nm <- "Median absolute deviation";
-    }else if (filter == "median"){
-      filter.val <- apply(int.mat, 2, median, na.rm=T);
-      nm <- "median";
-    }else{ # iqr
-      filter.val <- apply(int.mat, 2, IQR, na.rm=T);
-      nm <- "Interquantile Range";
-    }
-    
-    # get the rank of the filtered variables
-    rk <- rank(-filter.val, ties.method='random');
-    
-    var.num <- ncol(int.mat);
-    
-    if(var.num < 250){ # reduce 5%
-      remain <- rk < var.num*0.95;
-      msg <- paste(msg, "Further feature filtering based on", nm);
-    }else if(ncol(int.mat) < 500){ # reduce 10%
-      remain <- rk < var.num*0.9;
-      msg <- paste(msg, "Further feature filtering based on", nm);
-    }else if(ncol(int.mat) < 1000){ # reduce 25%
-      remain <- rk < var.num*0.75;
-      msg <- paste(msg, "Further feature filtering based on", nm);
-    }else{ # reduce 40%, if still over 5000, then only use top 5000
-      remain <- rk < var.num*0.6;
-      msg <- paste(msg, "Further feature filtering based on", nm);
-      
-      if(mSetObj$analSet$type == "mummichog"){
-        max.allow <- 7500;
-      }else if(mSetObj$analSet$type == "power"){
-        max.allow <- 5000;
-      }else{
-        max.allow <- 999;
-      }
-      
-      if(sum(remain) > max.allow){
-        remain <-rk < max.allow;
-        msg <- paste(msg, paste("Reduced to", max.allow, "features based on", nm));
-      }
-    }
-  }
-  
-  mSetObj$dataSet$filt <- int.mat[, remain];
-  mSetObj$msgSet$filter.msg <- msg;
-  message(msg)
-  
-  return((mSetObj));
-}
 
-
-if(!require ("RJSONIO")) install.packages("RJSONIO")
-
-
-if(!require ("fitdistrplus")) install.packages("fitdistrplus")
-
-
-
-tsnefolder<-"V:/Bioinformatics/FIt-SNE/"
-source(paste0(tsnefolder,"fast_tsne.R"))
-FAST_TSNE_SCRIPT_DIR <- tsnefolder
-
-
-match_mz = function(x, ref, tol = 1e-10,unit=c("Da","ppm"))
-
-{
-
- 
-
+match_mz = function(x, ref, tol = 1e-10,unit=c("Da","ppm")){
   sref = sort(ref)
 
   i = findInterval(x, sref, all.inside = TRUE)
@@ -462,25 +200,13 @@ match_mz = function(x, ref, tol = 1e-10,unit=c("Da","ppm"))
   i[dif] = i[dif]+1
 
   res_indx<-rep(NA,length(x))
-
- 
-
+  
   if (unit[1]=="ppm"){
-
     tol_ppm<-tol
-
     tol<-tol_ppm*x/1000000
-
   }
-
- 
-
   res_indx[dif1 <= tol]<-sref[i[dif1 <= tol]]
-
   res_indx
-
- 
-
 }
 
 
@@ -540,11 +266,6 @@ mummichog.lib.new[["cpd.lib"]][["adducts"]]$negative<-rbind(mummichog.lib.new[["
 }
 }
 
-
-
-
-
-#MetaboAnalystR:::CreateLibFromKEGG(mummichog.lib.new$cpd.lib, mummichog.lib.new$pathways, lib.new)
   cpd.lib <- mummichog.lib.new$cpd.lib;
   ms_modes <- c('dpj_positive', 'positive', 'negative');
   adducts <- list();
@@ -575,15 +296,6 @@ if (method[1]=="new_adduct"){
   }
 }
   cpd.lib$adducts <- adducts;
-  
-  # create a dictionary for look up in the range of 50-2000
-  # now need to create ladder (tree) for each new mz
-  # key is the mass 50 to 2000, values are the compounds (if any of their modified mw gives the value)
-  # now create cpd tree for each mass pos
-  # note, this can be slow, but this can be created before hand
-  # for each species and for each mode
-  # note l2 only stores the index of the cpd.lib
-  
   cpd.tree <- list();
   for (ms_mode in ms_modes){
     l2 <- list();
@@ -601,7 +313,6 @@ if (method[1]=="new_adduct"){
     }
     cpd.tree[[ms_mode]] <- lapply(l2, unique);
   }
-  
   # set up the variables
   mummichog.lib.new <- list(
     pathways = mummichog.lib.new$pathways,
@@ -623,45 +334,64 @@ annotate_PSEA<-function(mSet,mummichog.lib.new){
 }
 ```
 
+## 1.2 Package Setup
 
+```{r, eval=F, library}
+tsnefolder<-"V:/Bioinformatics/FIt-SNE/"
+source(paste0(tsnefolder,"fast_tsne.R"))
 
- # work folder Setup
-```{r library}
-library(Cardinal)
-library(HiTMaP)
+if (!require(Cardinal)){
+remotes::install_github("kuwisdelu/Cardinal",force=T)
+}
+
+if (!require(HiTMaP)){
+install.packages("remotes")
+remotes::install_github("MASHUOA/HiTMaP",force=T) 
+}
 #closeAllConnections()
 register(SnowParam())
 options(Cardinal.verbose=FALSE)
-options(Cardinal.progress=FALSE)
+options(Cardinal.progress=T)
 RNGkind("Mersenne-Twister")
 parallel=try(detectCores()/2)
-  if (parallel<1 | is.null(parallel)){parallel=1}
-  
-  BPPARAM=bpparam("SerialParam")
-  bpprogressbar(BPPARAM)=TRUE
-  setCardinalBPPARAM(BPPARAM)
-wd="D:/imzML/meta_workflow/"
+if (parallel<1 | is.null(parallel)){parallel=1}
+BPPARAM=SnowParam()
+bpprogressbar(BPPARAM)=TRUE
+setCardinalBPPARAM(BPPARAM)
 ```
 
 
-*Check*
-
+For detailed installation guide of MetaboAnalystR please visit:
 https://github.com/xia-lab/MetaboAnalystR
 
-For detailed installation guide of MetaboAnalystR
+## 1.3 Raw data, processed spectrum, and result
+
+
+Raw data link for steps 3 and 4: 
+[*Project on metaspace*](https://metaspace2020.eu/api_auth/review?prj=54e09ade-8cb1-11ee-adab-831686c45448&token=pwemUgFOuNiB)
+
+
+Result link for step 5 and later: 
+[](https://www.dropbox.com/t/5zOCpQDGbzaevoZy)
+
+Result link for step 5 and later also can be retrieved from the GitHub repo by using the R code below:
+```{r, eval=F }
 
 
 
-# 2. Working directory set up
-```{r}
+```
+
+
+# 2. Working directory setup
+
+```{r, eval=F }
 library(MetaboAnalystR)
 library(Cardinal)
 
-#change your own project directory here
-project_dir <- "R:/MVL/Work Folders/Dingchang/Manuscript/test/"
-large_files_dir <- "R:/MVL/Work Folders/Dingchang/Manuscript/test/large_files/"
+#change to your own project directory here
+project_dir <- "~/Manuscript/test/"
 
-
+large_files_dir <- "~/Manuscript/test/large_files/"
 
 spatial_alignment_dir <- "/spatial_alignment/"
 dim_reduction_dir <-  "/dim_reduction/"
@@ -669,7 +399,7 @@ PCA_dir <- "/pca_anal_new/"
 UMAP_dir <- "/UMAP/"
 tSNE_dir <- "/tSNE/"
 
-FDR_dir = "/SQRTP_0.1/"
+FDR_dir <- "/SQRTP_0.1/"
 visualization_dir <- "/visualization/"
 shrink_dir<- "/data_shrink/"
 heximg_dir <- "/heximg/"
@@ -688,7 +418,7 @@ example_imdata<-combinedimdata[,run(combinedimdata) == "4hrsilglucose_2nd_202011
 
 # 3. Lens coordinate rescaling and alignment
 
-```{r}
+```{r, eval=F }
 wd <- project_dir
 outwd<- paste0(project_dir, spatial_alignment_dir)
 
@@ -727,7 +457,7 @@ bin@cID->pixeldf$new_label_scale
 ```
 
 # 4. Lens-to-lens hexagonal binning
-```{r}
+```{r, eval=F }
 wd <- project_dir
 outwd<- paste0(project_dir, spatial_alignment_dir)
 
@@ -792,7 +522,7 @@ message(label_sel," DONE")
 
 
 # 5. Time-scale transformation of the lens data
-```{r}
+```{r, eval=F }
 wd<-paste0(project_dir, spatial_alignment_dir)
 setwd(wd)
 library(readr)
@@ -845,14 +575,14 @@ write.csv(cls_merge_bind, paste0(wd, "grouped_bio_rep_all_pixel_mean_label_time_
 # 6. Dimensionality reduction, top loading feature selection and K-means segmentation 
 check if the file needed exists in the right folder; otherwise download from the repository
 
-```{r}
+```{r, eval=F }
 file.exists(paste0(project_dir, spatial_alignment_dir, "grouped_bio_rep_all_pixel_mean_label_time_merge.csv"))
 ```
 
 
 
 ## 6.1 Principle conponent analysis and top loading feature selection
-```{r}
+```{r, eval=F }
 library(dplyr)
 library(stringr)
 library(FactoMineR)
@@ -906,7 +636,7 @@ save(list = c("PCA","PCA.contri","PCA.desc","Dim.feature.contri.list","cls_merge
 
 ### 6.1.1 PCA Single dimension K means 
 
-```{r}
+```{r, eval=F }
 library(dplyr)
 library(Cardinal)
 
@@ -965,7 +695,7 @@ dev.off()
 
 
 ## 6.2 UMAP (all bio rep)
-```{r}
+```{r, eval=F }
 library(readr)
 library(Cardinal)
 library(rsvd)
@@ -999,7 +729,7 @@ saveRDS(Time_merged_umap, paste0(project_dir, dim_reduction_dir, UMAP_dir, "/Tim
 ```
 ### 6.2.1 UMAP Single dimension lens projection
 
-```{r}
+```{r, eval=F }
 library(dplyr)
 library(Cardinal)
 
@@ -1053,7 +783,12 @@ dev.off()
 
 
 ## 6.3 t-SNE (all bio rep)
-```{r}
+
+The t-SNE on large scale data requires https://github.com/KlugerLab/FIt-SNE to be installed. FFTW (http://www.fftw.org/) is also required.
+
+Please follow the instruction from the repo to get "fftRtsne" function available and working properly.
+
+```{r, eval=F }
 dir.create(paste0(project_dir, dim_reduction_dir, tSNE_dir))
 
 
@@ -1083,9 +818,13 @@ saveRDS(Time_merged_tsne, paste0(wd, "/Time_merged_tsne_all_bio.rds"))
 
 ### 6.3.1 tSNE Single dimension K means 
 
-```{r}
+```{r, eval=F }
 library(dplyr)
 library(Cardinal)
+
+tSNE_dir<-"V:/Bioinformatics/FIt-SNE/"
+source(paste0(tSNE_dir,"fast_tsne.R"))
+FAST_TSNE_SCRIPT_DIR <- tSNE_dir
 
 Time_merged_tsne <- readRDS(paste0(project_dir, dim_reduction_dir, tSNE_dir,"Time_merged_tsne_all_bio.rds"))
 colnames(Time_merged_tsne)<- c("x", "y", "bin")
@@ -1138,7 +877,7 @@ dev.off()
 
 
 # 7. Metabolite library construction (function)
-```{r}
+```{r, eval=F }
 mummichog.lib.mod<-function(lib="bta_kegg",lib.new="bta_kegg_13C",C13_number=c(3,6),C13_deltamass=1.003355,wd=getwd(),force_update_lib=F,adducts_list="all",method=c("new_cpd","new_adduct")){
 
 filenm <- paste(wd,"/",lib, ".qs", sep="")
@@ -1271,7 +1010,7 @@ return(mummichog.lib.new)
 # 8. 1st round metabolomic annotation and pathway enrichment for all detected m/z features
 
 ## 8.1 Metabolite annotation and pathway enrichment
-```{r}
+```{r, eval=F }
 outwd = paste0(project_dir, dim_reduction_dir,PCA_dir)
 
 for  (dim in paste0("Dim.", 1:5)){
@@ -1333,7 +1072,7 @@ df_C13[[as.character(p_thres)]]$source<-p_thres
 
 ## 8.2 pathway summary
 
-```{r}
+```{r, eval=F }
 #read KEGG library
 
 bta_kegg<- qs::qread( paste0(outwd, "/Metabo_Dim.1/bta_kegg.qs") )
@@ -1341,7 +1080,7 @@ cpd.info<- data.frame(cpd.name = bta_kegg[["cpd.lib"]][["name"]], id = bta_kegg[
 ```
 
 
-```{r}
+```{r, eval=F }
 library(reshape2)
 library(dplyr)
 library(stringr)
@@ -1434,14 +1173,14 @@ write.csv(df_output, paste0(outwd, "pathway_final_output_1_to_5.csv"), row.names
 ```
 
 
-```{r}
+```{r, eval=F }
 
 Pathway_matched_sig_summary<-Pathway_matched_sig
 Pathway_matched_sig_summary<-Pathway_matched_sig_summary[!duplicated(Pathway_matched_sig_summary[,c( "Matched.Compound", "Matched.Form","Dim" )]),]
 ```
 
 # 9. Feature scoring and FDR controlled filtering
-```{r}
+```{r, eval=F }
 library(HiTMaP)
 library(stringr)
   wd="V:/Bioinformatics/test_scoring_cpd_mummichog/"
@@ -1570,7 +1309,7 @@ print(p)
 # 10. 2nd round metabolomic annotation and pathway enrichment within FDR filtered features
 
 
-```{r}
+```{r, eval=F }
 library(stringr)
 library(readr)
 
@@ -1813,7 +1552,7 @@ write.csv(df_output, paste0(outwd, "pathway_final_output_1_to_5_FDR_0.1_remappin
 # 11. Feature visualization 
 
 ## 11.1 Selected bio rep
-```{r}
+```{r, eval=F }
 library(Cardinal)
 library(stringr)
 library(dplyr)
@@ -1831,7 +1570,7 @@ pixeldf<-all_coordata_label_sel_arc_bind
 ```
 
 
-```{r}
+```{r, eval=F }
 library(Cardinal)
 
 combinedimdata_full<- combinedimdata
@@ -1900,7 +1639,7 @@ message(label_sel," DONE")
 
 ```
 
-```{r}
+```{r, eval=F }
 
 setwd(wd)
 library(readr)
@@ -1956,7 +1695,7 @@ write.csv(cls_merge_bind, paste0(project_dir, visualization_dir , heximg_dir, "g
 ```
 
 ## 11.2 Visualization
-```{r}
+```{r, eval=F }
 mum.url <- paste("https://www.metaboanalyst.ca/resources/libs/mummichog/bta_kegg.qs")
 
 download.file(mum.url, paste0(project_dir, visualization_dir, heximg_dir, "bta_kegg.qs"), 
@@ -2055,7 +1794,7 @@ image_write(image_stack,paste0(project_dir, visualization_dir, heximg_dir,"/imag
 ## 11.3 Metabolite annotation in pathway format 
 
 ### 11.3.1 ion image plotting (skip if ion image available )
-```{r}
+```{r, eval=F }
 library(stringr)
 
 run_demo_slt<-c("ff_trim_02_08042021","5minsilglucose_2nd_20201116_trim","15minsilglucose_2nd_20201116_trim","30minsilglucose_2nd_20201116_trim","1hrsilglucose_201130_trim","2hrsilglucose_2nd_20201109_trim","4hr_01_20201109_trim","8hr_01_20201109_trim","16hrsilglucose_03_20211123_trim","20hrsilglucose_02_20211123_trim")
@@ -2076,7 +1815,7 @@ saveRDS(combinedimdata_demo_cpd_match,paste0(project_dir, dim_reduction_dir, PCA
 ```
 
 
-```{r}
+```{r, eval=F }
 library(Cardinal)
 readRDS(paste0(project_dir, dim_reduction_dir, PCA_dir, "/combinedimdata_demo_cpd_match.rds"))->combinedimdata_demo_cpd_match
 
@@ -2104,7 +1843,7 @@ dev.off()
 ```
 
 ### 11.3.2 Assign metabolites to pathways 
-```{r}
+```{r, eval=F }
 df_output<- read.csv(paste0(project_dir, dim_reduction_dir, PCA_dir,  "/pathway_final_output_1_to_5_FDR_0.1_remapping.csv") )
 
 cpd.high.quality <- read.csv(paste0(project_dir, dim_reduction_dir, PCA_dir, "/Metabo_Dim.1FDR_0.1/mummichog_matched_compound_all.csv"))
@@ -2144,7 +1883,7 @@ Pathway_matched_sig<-do.call(rbind,Pathway_matched_sig)
 
 ```
 
-```{r}
+```{r, eval=F }
 outwd= paste0(project_dir, dim_reduction_dir, PCA_dir, ion_images_dir)
 # Pathway_matched_sig_summary<-Pathway_matched_sig_summary[!duplicated(Pathway_matched_sig_summary[,c( "Matched.Compound", "Matched.Form","Dim" )]),]
 library(magick)
@@ -2304,7 +2043,7 @@ for (pathway in unique(Pathway_matched_sig_summary$Pathway)){
 ```
 
 # 12. Shrunk data
-```{r}
+```{r, eval=F }
 
   
 dir.create(paste0(project_dir, shrink_dir))
@@ -2342,7 +2081,7 @@ dev.off()
 ```
 
 ## 12.1 PCA visualisation  
-```{r}
+```{r, eval=F }
 library(egg)
 library(rsvd)
 library(dplyr)
@@ -2438,7 +2177,7 @@ dev.off()
 
 
 ## 12.2 PCA K means
-```{r}
+```{r, eval=F }
 #Dim.4 vs Dim.5
 
 set.seed(2)
@@ -2525,7 +2264,7 @@ dev.off()
 
 
 ## 12.3 UMAP K means
-```{r}
+```{r, eval=F }
 library(rsvd)
 library(dplyr)
 library(ggplot2)
@@ -2597,7 +2336,7 @@ dev.off()
 
 ```
 
-```{r}
+```{r, eval=F }
 set.seed(9)
 umap.kmean.res<- kmeans(Time_merged_umap_full[,c("UMAP_1", "UMAP_2")], 6, nstart = 25)
 
@@ -2635,7 +2374,7 @@ dev.off()
 
 ## 12.4 t-SNE K means
 
-```{r}
+```{r, eval=F }
 library(rsvd)
 library(dplyr)
 library(ggplot2)
@@ -2698,7 +2437,7 @@ dev.off()
 
 ```
 
-```{r}
+```{r, eval=F }
 set.seed(9)
 tsne.kmean.res<- kmeans(Time_merged_tsne_full[,c("tSNE_1", "tSNE_2")], 6, nstart = 25)
 
