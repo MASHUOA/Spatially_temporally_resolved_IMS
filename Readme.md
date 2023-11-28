@@ -57,11 +57,78 @@ Raw data link for steps 3 and 4:
 metaspace*](https://metaspace2020.eu/api_auth/review?prj=54e09ade-8cb1-11ee-adab-831686c45448&token=pwemUgFOuNiB)
 
 Result link for step 5 and later can be retrieved from the GitHub repo
-by using the R code below:
+by using the R code below: Please set a project folder here, the files
+will be available in this folder for later steps.
 
-Raw data and Result files for all steps can accessed temporarily via
-dropbox for reviewing process: [Dropbox
-transfer](https://www.dropbox.com/t/5zOCpQDGbzaevoZy)
+``` r
+project_dir <- "~/Manuscript_guo2023/"
+
+dir.create(project_dir)
+
+if(!require(piggyback)) install.packages("piggyback")
+
+library(piggyback)
+
+setwd(project_dir)
+
+grouped_bio_rep_all_pixel_mean_label_time_merge.csv
+
+test.zip
+
+Time_merged_PCA_all_bio.rda
+
+pb_releases<-function (repo = guess_repo(), .token = gh::gh_token(), verbose = getOption("piggyback.verbose", 
+  default = TRUE)) 
+{
+  mc <- match.call()
+  encl <- parent.env(environment("piggyback"))
+  called_args <- as.list(mc)[-1]
+  default_args <- encl$`_default_args`
+  default_args <- default_args[setdiff(names(default_args), 
+    names(called_args))]
+  called_args[encl$`_omit_args`] <- NULL
+  called_args<<-called_args
+  args <- c(lapply(called_args, eval, parent.frame()), lapply(default_args, 
+    eval, envir = environment()))
+  key <- encl$`_hash`(c(encl$`_f_hash`, args, lapply(encl$`_additional`, 
+    function(x) eval(x[[2L]], environment(x)))))
+  res <- encl$`_cache`$get(key)
+  if (inherits(res, "key_missing")) {
+    mc[[1L]] <- encl$`_f`
+    res <- withVisible(eval(mc, parent.frame()))
+    encl$`_cache`$set(key, res)
+  }
+  if (res$visible) {
+    res$value
+  }
+  else {
+    invisible(res$value)
+  }
+}
+
+repo= "MASHUOA/HiTMaP"
+releases <- pb_releases(repo = repo, .token = .token, verbose = FALSE)
+
+(df <- piggyback:::pb_info(repo, tag="1.0.1"))
+
+
+pb_download("all_merged_data_df_bind2.zip", 
+            repo = "MASHUOA/Spatially_temporally_resolved_analysis", 
+            dest = ".", tag = "review")
+
+pb_download(file="all_merged_data_df_bind2.zip", repo = "MASHUOA/Spatially_temporally_resolved_analysis", dest = ".",show_progress = T)
+
+pb_download("Data.tar.gz", repo = "MASHUOA/Spatially_temporally_resolved_analysis", dest = ".")
+
+untar('Data.tar.gz',exdir =".",  tar="tar")
+
+#unlink('Data.tar.gz')
+list.dirs()
+```
+
+Raw data and Result files for all steps can be retrieved via dropbox for
+reviewing process: [Dropbox
+transfer](https://www.dropbox.com/t/jJc0Ehc0IlYCrXfg)
 
 ## 1.2 Global functions (shown in the RMD)
 
