@@ -903,6 +903,7 @@ colnames(Time_merged_umap)<-c("x","y","bin")
 saveRDS(Time_merged_umap, paste0(project_dir, dim_reduction_dir, UMAP_dir, "/Time_merged_umap_all_bio.rds"))
 
 ```
+
 ### 6.2.1 UMAP Single dimension lens projection
 
 ```{r, eval=F }
@@ -925,9 +926,6 @@ for (a in c("x", "y")) {
 Time_merged_umap <-Time_merged_umap[as.numeric(Time_merged_umap$bin) %in% all_coordata_label_sel_arc_bind$new_label_scale[all_coordata_label_sel_arc_bind$run == "4hrsilglucose_2nd_20201109_trim"],]
 
 Time_merged_umap$Rank<-dense_rank(Time_merged_umap[,a])
-
-
-
 
 png(paste0(project_dir, dim_reduction_dir, UMAP_dir,"/kmean_seg_single_demo/","umap_",a,"_single_dim_lens_projections.png"),height = 5,width = 6,units = "in",res = 600)
 
