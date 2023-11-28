@@ -531,7 +531,7 @@ annotate_PSEA <- function(mSet, mummichog.lib.new) {
 
 ## 1.3 Package Setup
 
-The t-SNE on large scale data requires https://github.com/KlugerLab/FIt-SNE to be installed. FFTW (http://www.fftw.org/) is also required.
+The t-SNE on large scale data requires https://github.com/KlugerLab/FIt-SNE to be installed. FFTW (http://www.fftw.org/) is also required. Please follow the instruction on this website and install the prerequisite "FFTW". 
 
 Please follow the instruction from the repo to get "fftRtsne" function available and working properly.
 
@@ -539,8 +539,11 @@ For detailed installation guide of MetaboAnalystR please visit:
 https://github.com/xia-lab/MetaboAnalystR
 
 ```{r, eval=F, library}
+#t-SNE package folder
+
 tsnefolder<-"~/FIt-SNE/"
 source(paste0(tsnefolder,"fast_tsne.R"))
+FAST_TSNE_SCRIPT_DIR <- tsnefolder
 
 if (!require(Cardinal)){
 remotes::install_github("kuwisdelu/Cardinal",force=T)
@@ -1016,9 +1019,6 @@ if (exists("combinedimdata") == TRUE){
 library(dplyr)
 library(Cardinal)
 
-tSNE_dir<-"V:/Bioinformatics/FIt-SNE/"
-source(paste0(tSNE_dir,"fast_tsne.R"))
-FAST_TSNE_SCRIPT_DIR <- tSNE_dir
 
 Time_merged_tsne <- readRDS(paste0(project_dir, dim_reduction_dir, tSNE_dir,"Time_merged_tsne_all_bio.rds"))
 colnames(Time_merged_tsne)<- c("x", "y", "bin")
