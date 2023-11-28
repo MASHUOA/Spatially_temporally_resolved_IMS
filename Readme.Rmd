@@ -985,7 +985,7 @@ saveRDS(Time_merged_tsne, paste0(wd, "/Time_merged_tsne_all_bio.rds"))
 
 ### 6.3.1 tSNE Single dimension K means 
 
-```{r}
+```{r, eval=F}
 #Detect if "combinedimdata" exists
 
 if (exists("combinedimdata") == TRUE){
