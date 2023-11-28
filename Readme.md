@@ -550,7 +550,8 @@ annotate_PSEA <- function(mSet, mummichog.lib.new) {
 
 The t-SNE on large scale data requires
 <https://github.com/KlugerLab/FIt-SNE> to be installed. FFTW
-(<http://www.fftw.org/>) is also required.
+(<http://www.fftw.org/>) is also required. Please follow the instruction
+on this website and install the prerequisite “FFTW”.
 
 Please follow the instruction from the repo to get “fftRtsne” function
 available and working properly.
@@ -559,8 +560,11 @@ For detailed installation guide of MetaboAnalystR please visit:
 <https://github.com/xia-lab/MetaboAnalystR>
 
 ``` r
+#t-SNE package folder
+
 tsnefolder<-"~/FIt-SNE/"
 source(paste0(tsnefolder,"fast_tsne.R"))
+FAST_TSNE_SCRIPT_DIR <- tsnefolder
 
 if (!require(Cardinal)){
 remotes::install_github("kuwisdelu/Cardinal",force=T)
@@ -856,9 +860,7 @@ dims.pca <- PCA[["ind"]][["coord"]]
 dims.pca<- as.data.frame(dims.pca)
 
 all_coordata_label_sel_arc_bind<-read.csv(paste0(project_dir, spatial_alignment_dir,"all_coordata_label_sel_arc_bind2.csv"),row.names = 1)
-
 example_imdata<-combinedimdata[,run(combinedimdata) == "4hrsilglucose_2nd_20201109_trim"]
-
 dir.create(paste0(project_dir, dim_reduction_dir, PCA_dir,"/kmean_seg_single_demo/"))
 
   
@@ -870,15 +872,9 @@ dims.pca$Rank<-dense_rank(dims.pca[,a])
 png(paste0(project_dir, dim_reduction_dir, PCA_dir,"/kmean_seg_single_demo/","Dim.",a,"_pca_single_dim_lens_projections.png"),height = 5,width = 6,units = "in",res = 600)
 
 match(all_coordata_label_sel_arc_bind$new_label_scale, as.numeric(rownames(dims.pca)))-> rank_index
-
 all_coordata_label_sel_arc_bind$Rank<- dims.pca$Rank[rank_index]
-
 factor(all_coordata_label_sel_arc_bind$Rank[all_coordata_label_sel_arc_bind$run == "4hrsilglucose_2nd_20201109_trim"])->final_selection
-
-
 fig.arbitrary_seg<-image(example_imdata, factor(final_selection) ~ x * y,superpose=F, key=F, xlab= NULL, col = grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11, "RdYlBu")))(max(dims.pca$Rank)) )
-
-
 
 fig.arbitrary_seg[["par"]][["ann"]]=F
 fig.arbitrary_seg[["par"]][["bty"]]="n"
@@ -930,44 +926,34 @@ saveRDS(Time_merged_umap, paste0(project_dir, dim_reduction_dir, UMAP_dir, "/Tim
 ### 6.2.1 UMAP Single dimension lens projection
 
 ``` r
+#Detect if "combinedimdata" exists
+
+if (exists("combinedimdata") == TRUE){
+  message("combinedimdata exists.")
+} else {
+  combinedimdata <- readRDS(paste0(project_dir, large_files_dir,"/combinedimdata_norm_full.rds"))
+  message("combinedimdata has been loaded.")
+}
+```
+
+``` r
 library(dplyr)
 library(Cardinal)
 
 Time_merged_umap <- readRDS(paste0(project_dir, dim_reduction_dir, UMAP_dir,"Time_merged_umap_all_bio.rds"))
-
-
 all_coordata_label_sel_arc_bind<-read.csv(paste0(project_dir, spatial_alignment_dir,"all_coordata_label_sel_arc_bind2.csv"),row.names = 1)
-
 example_imdata<-combinedimdata[,run(combinedimdata) == "4hrsilglucose_2nd_20201109_trim"]
-
 dir.create(paste0(project_dir, dim_reduction_dir, UMAP_dir,"/kmean_seg_single_demo/"))
 
-  
 for (a in c("x", "y")) {
-
- 
 Time_merged_umap <-Time_merged_umap[as.numeric(Time_merged_umap$bin) %in% all_coordata_label_sel_arc_bind$new_label_scale[all_coordata_label_sel_arc_bind$run == "4hrsilglucose_2nd_20201109_trim"],]
-
 Time_merged_umap$Rank<-dense_rank(Time_merged_umap[,a])
-
-
-
-
 png(paste0(project_dir, dim_reduction_dir, UMAP_dir,"/kmean_seg_single_demo/","umap_",a,"_single_dim_lens_projections.png"),height = 5,width = 6,units = "in",res = 600)
 
-
-
 match(all_coordata_label_sel_arc_bind$new_label_scale, as.numeric(Time_merged_umap$bin))-> rank_index
-
 all_coordata_label_sel_arc_bind$Rank<- Time_merged_umap$Rank[rank_index]
-
 factor(all_coordata_label_sel_arc_bind$Rank[all_coordata_label_sel_arc_bind$run == "4hrsilglucose_2nd_20201109_trim"])->final_selection
-
-
 fig.arbitrary_seg<-image(example_imdata, factor(final_selection) ~ x * y,superpose=F, key=F, xlab= NULL, col = grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11, "RdYlBu")))(max(Time_merged_umap$Rank)) )
-
-
-
 fig.arbitrary_seg[["par"]][["ann"]]=F
 fig.arbitrary_seg[["par"]][["bty"]]="n"
 fig.arbitrary_seg[["par"]][["pty"]]="s"
@@ -1012,12 +998,20 @@ saveRDS(Time_merged_tsne, paste0(wd, "/Time_merged_tsne_all_bio.rds"))
 ### 6.3.1 tSNE Single dimension K means
 
 ``` r
+#Detect if "combinedimdata" exists
+
+if (exists("combinedimdata") == TRUE){
+  message("combinedimdata exists.")
+} else {
+  combinedimdata <- readRDS(paste0(project_dir, large_files_dir,"/combinedimdata_norm_full.rds"))
+  message("combinedimdata has been loaded.")
+}
+```
+
+``` r
 library(dplyr)
 library(Cardinal)
 
-tSNE_dir<-"V:/Bioinformatics/FIt-SNE/"
-source(paste0(tSNE_dir,"fast_tsne.R"))
-FAST_TSNE_SCRIPT_DIR <- tSNE_dir
 
 Time_merged_tsne <- readRDS(paste0(project_dir, dim_reduction_dir, tSNE_dir,"Time_merged_tsne_all_bio.rds"))
 colnames(Time_merged_tsne)<- c("x", "y", "bin")
@@ -1030,30 +1024,14 @@ dir.create(paste0(project_dir, dim_reduction_dir, tSNE_dir,"/kmean_seg_single_de
 
   
 for (a in c("x", "y")) {
-
- 
 Time_merged_tsne  <-Time_merged_tsne [as.numeric(Time_merged_tsne $bin) %in% all_coordata_label_sel_arc_bind$new_label_scale[all_coordata_label_sel_arc_bind$run == "4hrsilglucose_2nd_20201109_trim"],]
-
 Time_merged_tsne $Rank<-dense_rank(Time_merged_tsne[,a])
-
-
-
-
 png(paste0(project_dir, dim_reduction_dir, tSNE_dir,"/kmean_seg_single_demo/","tsne_",a,"_single_dim_lens_projections.png"),height = 5,width = 6,units = "in",res = 600)
-
-
-
 match(all_coordata_label_sel_arc_bind$new_label_scale, as.numeric(Time_merged_tsne $bin))-> rank_index
-
 all_coordata_label_sel_arc_bind$Rank<- Time_merged_tsne$Rank[rank_index]
-
 factor(all_coordata_label_sel_arc_bind$Rank[all_coordata_label_sel_arc_bind$run == "4hrsilglucose_2nd_20201109_trim"])->final_selection
 
-
 fig.arbitrary_seg<-image(example_imdata, factor(final_selection) ~ x * y,superpose=F, key=F, xlab= NULL, col = grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11, "RdYlBu")))(max(Time_merged_tsne$Rank)) )
-
-
-
 fig.arbitrary_seg[["par"]][["ann"]]=F
 fig.arbitrary_seg[["par"]][["bty"]]="n"
 fig.arbitrary_seg[["par"]][["pty"]]="s"
