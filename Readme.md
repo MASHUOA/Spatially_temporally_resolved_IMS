@@ -615,16 +615,16 @@ fileinfo_v2 <- readr::read_csv(paste0(project_dir,"/fileinfo_v2.csv"))
 # 3. Lens coordinate rescaling and alignment
 
 ``` r
+library(Cardinal)
+library(readr)
+library(hexbin)
+library(dplyr)
+
 wd <- project_dir
 outwd<- paste0(project_dir, spatial_alignment_dir)
 
 #load IMS data of full m/z features in all runs
 combinedimdata <- readRDS(paste0(project_dir, large_files_dir,"/combinedimdata_norm_full.rds"))
-example_imdata<-combinedimdata[,run(combinedimdata) == "4hrsilglucose_2nd_20201109_trim"]
-library(Cardinal)
-library(readr)
-library(hexbin)
-library(dplyr)
 
 fileinfo_v2 <- readr::read_csv(paste0(wd,"/fileinfo_v2.csv"))
 fileinfo_v2$filenames<-tolower(fileinfo_v2$filenames)
@@ -660,6 +660,13 @@ bin@cID->pixeldf$new_label_scale
 ``` r
 wd <- project_dir
 outwd<- paste0(project_dir, spatial_alignment_dir)
+
+if (exists("combinedimdata") == TRUE){
+  message("combinedimdata exists.")
+} else {
+  combinedimdata <- readRDS(paste0(project_dir, large_files_dir,"/combinedimdata_norm_full.rds"))
+  message("combinedimdata has been loaded.")
+}
 
 combinedimdata->combinedimdata_full
 final_selection_df<-read.csv(paste0(wd,"/final_selection.csv"))
@@ -838,7 +845,13 @@ save(list = c("PCA","PCA.contri","PCA.desc","Dim.feature.contri.list","cls_merge
 library(dplyr)
 library(Cardinal)
 
-load(paste0(project_dir, dim_reduction_dir, PCA_dir,"Time_merged_PCA_all_bio.rda"))
+if (exists("Dim.feature.contri.summmary.list.bind")==TRUE) {
+  message("PCA result has been retrieved.")
+} else {
+  load(paste0(project_dir, dim_reduction_dir, PCA_dir,"Time_merged_PCA_all_bio.rda"))
+  message("PCA result has been loaded.")
+}
+
 dims.pca <- PCA[["ind"]][["coord"]]
 dims.pca<- as.data.frame(dims.pca)
 
@@ -854,13 +867,7 @@ for (a in 1:5) {
   dims.pca<-dims.pca[as.numeric(rownames(dims.pca)) %in% all_coordata_label_sel_arc_bind$new_label_scale[all_coordata_label_sel_arc_bind$run == "4hrsilglucose_2nd_20201109_trim"],]
 
 dims.pca$Rank<-dense_rank(dims.pca[,a])
-
-
-
-
 png(paste0(project_dir, dim_reduction_dir, PCA_dir,"/kmean_seg_single_demo/","Dim.",a,"_pca_single_dim_lens_projections.png"),height = 5,width = 6,units = "in",res = 600)
-
-
 
 match(all_coordata_label_sel_arc_bind$new_label_scale, as.numeric(rownames(dims.pca)))-> rank_index
 
