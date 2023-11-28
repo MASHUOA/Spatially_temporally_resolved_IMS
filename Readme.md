@@ -61,7 +61,7 @@ by using the R code below: Please set a project folder here, the files
 will be available in this folder for later steps.
 
 ``` r
-project_dir <- "~/Manuscript_guo2023/"
+project_dir <- "~/Manuscript_guo2023/" 
 
 dir.create(project_dir)
 

@@ -598,16 +598,16 @@ fileinfo_v2 <- readr::read_csv(paste0(project_dir,"/fileinfo_v2.csv"))
 # 3. Lens coordinate rescaling and alignment
 
 ```{r, eval=F }
+library(Cardinal)
+library(readr)
+library(hexbin)
+library(dplyr)
+
 wd <- project_dir
 outwd<- paste0(project_dir, spatial_alignment_dir)
 
 #load IMS data of full m/z features in all runs
 combinedimdata <- readRDS(paste0(project_dir, large_files_dir,"/combinedimdata_norm_full.rds"))
-example_imdata<-combinedimdata[,run(combinedimdata) == "4hrsilglucose_2nd_20201109_trim"]
-library(Cardinal)
-library(readr)
-library(hexbin)
-library(dplyr)
 
 fileinfo_v2 <- readr::read_csv(paste0(wd,"/fileinfo_v2.csv"))
 fileinfo_v2$filenames<-tolower(fileinfo_v2$filenames)
@@ -642,6 +642,8 @@ bin@cID->pixeldf$new_label_scale
 ```{r, eval=F }
 wd <- project_dir
 outwd<- paste0(project_dir, spatial_alignment_dir)
+
+combinedimdata <- readRDS(paste0(project_dir, large_files_dir,"/combinedimdata_norm_full.rds"))
 
 combinedimdata->combinedimdata_full
 final_selection_df<-read.csv(paste0(wd,"/final_selection.csv"))
