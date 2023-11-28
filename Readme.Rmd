@@ -643,7 +643,12 @@ bin@cID->pixeldf$new_label_scale
 wd <- project_dir
 outwd<- paste0(project_dir, spatial_alignment_dir)
 
-combinedimdata <- readRDS(paste0(project_dir, large_files_dir,"/combinedimdata_norm_full.rds"))
+if (exists("combinedimdata") == TRUE){
+  message("combinedimdata exists.")
+} else {
+  combinedimdata <- readRDS(paste0(project_dir, large_files_dir,"/combinedimdata_norm_full.rds"))
+  message("combinedimdata has been loaded.")
+}
 
 combinedimdata->combinedimdata_full
 final_selection_df<-read.csv(paste0(wd,"/final_selection.csv"))
