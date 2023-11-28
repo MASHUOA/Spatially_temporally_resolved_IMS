@@ -909,7 +909,7 @@ saveRDS(Time_merged_umap, paste0(project_dir, dim_reduction_dir, UMAP_dir, "/Tim
 
 ### 6.2.1 UMAP Single dimension lens projection
 
-```{r}
+```{r, eval=F }
 #Detect if "combinedimdata" exists
 
 if (exists("combinedimdata") == TRUE){
