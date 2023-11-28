@@ -43,7 +43,7 @@ Please set a project folder here, the files will be available in this folder for
 
 ```{r, eval=F }
  
-project_dir <- "~/Manuscript_guo2023/"
+project_dir <- "~/Manuscript_guo2023/" 
 
 dir.create(project_dir)
 
