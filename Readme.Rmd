@@ -840,9 +840,7 @@ dims.pca <- PCA[["ind"]][["coord"]]
 dims.pca<- as.data.frame(dims.pca)
 
 all_coordata_label_sel_arc_bind<-read.csv(paste0(project_dir, spatial_alignment_dir,"all_coordata_label_sel_arc_bind2.csv"),row.names = 1)
-
 example_imdata<-combinedimdata[,run(combinedimdata) == "4hrsilglucose_2nd_20201109_trim"]
-
 dir.create(paste0(project_dir, dim_reduction_dir, PCA_dir,"/kmean_seg_single_demo/"))
 
   
@@ -854,15 +852,9 @@ dims.pca$Rank<-dense_rank(dims.pca[,a])
 png(paste0(project_dir, dim_reduction_dir, PCA_dir,"/kmean_seg_single_demo/","Dim.",a,"_pca_single_dim_lens_projections.png"),height = 5,width = 6,units = "in",res = 600)
 
 match(all_coordata_label_sel_arc_bind$new_label_scale, as.numeric(rownames(dims.pca)))-> rank_index
-
 all_coordata_label_sel_arc_bind$Rank<- dims.pca$Rank[rank_index]
-
 factor(all_coordata_label_sel_arc_bind$Rank[all_coordata_label_sel_arc_bind$run == "4hrsilglucose_2nd_20201109_trim"])->final_selection
-
-
 fig.arbitrary_seg<-image(example_imdata, factor(final_selection) ~ x * y,superpose=F, key=F, xlab= NULL, col = grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(11, "RdYlBu")))(max(dims.pca$Rank)) )
-
-
 
 fig.arbitrary_seg[["par"]][["ann"]]=F
 fig.arbitrary_seg[["par"]][["bty"]]="n"
@@ -876,12 +868,7 @@ print(fig.arbitrary_seg)
 dev.off()
 }
 
-
-
 ```
-
-
-
 
 ## 6.2 UMAP (all bio rep)
 ```{r, eval=F }
