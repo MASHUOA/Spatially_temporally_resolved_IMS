@@ -587,6 +587,43 @@ if (parallel<1 | is.null(parallel)){parallel=1}
 BPPARAM=SnowParam()
 bpprogressbar(BPPARAM)=TRUE
 setCardinalBPPARAM(BPPARAM)
+
+#Cardinal
+install.packages("BiocManager")
+BiocManager::install("Cardinal")
+
+#MetaboAnalystR
+
+#HiMAP
+install.packages("remotes")
+install.packages("devtools")
+#library(devtools)
+library(remotes)
+Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS" = "true")
+remotes::install_github("MASHUOA/HiTMaP",force=T)
+remotes::install_github("kuwisdelu/Cardinal",force=T)
+3
+no
+#Update all dependencies
+BiocManager::install(ask = F)
+yes
+library(HiTMaP)
+
+install.packages("dplyr")
+install.packages("stringr")
+install.packages("readr")
+install.packages("hexbin")
+install.packages("magick")
+install.packages("FactoMineR")
+install.packages("M3C")
+install.packages("plotly")
+install.packages("rsvd")
+install.packages("egg")
+install.packages("reshape2")
+install.packages("flextable")
+install.packages("grid")
+install.packages("wesanderson")
+install.packages("ggpubr")
 ```
 
 # 2. Working directory setup
