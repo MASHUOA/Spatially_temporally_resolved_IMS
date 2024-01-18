@@ -2749,9 +2749,6 @@ png(paste0(wd,"PCA_label_image","_anno_SIL_cpd_","summarized","_timeseries_plot_
 print(p)
 dev.off()
 
- 
-
-
 ```
 
 ```{r}
@@ -2759,7 +2756,7 @@ targetmzs=c(221.0521,223.0679, 265.0425, 295.0538, 345.0090, 571.0667)
 targetcpds <- c("SIL_Glucose", "SIL_Sorbitol", "SIL_G6P", "SIL_S7P", "SIL_F16BP", "SIL_UDP_Glucose")
 targetmzs_df <- data.frame(targetmzs = targetmzs,targetcpds=targetcpds )
 
-cls_merge_mt_mz<-str_split_fixed(colnames(cls_merge_mt),"@",2)[,1]
+cls_merge_mt_mz<- stringr::str_split_fixed(colnames(cls_merge_mt),"@",2)[,1]
 cls_merge_mt_time<-str_split_fixed(colnames(cls_merge_mt),"@",2)[,2]
 cls_merge_mt[,cls_merge_mt_mz %in% match_mz(targetmzs,as.numeric(cls_merge_mt_mz),10,"ppm")]->plotdf
 plotdf<-melt(plotdf)
