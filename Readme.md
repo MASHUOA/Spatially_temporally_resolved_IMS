@@ -46,6 +46,9 @@ Dingchang Shi, George Guo
   - [12.2 PCA K means](#122-pca-k-means)
   - [12.3 UMAP K means](#123-umap-k-means)
   - [12.4 t-SNE K means](#124-t-sne-k-means)
+- [13. Ploting classfied time series
+  data](#13-ploting-classfied-time-series-data)
+  - [13.1 PCA error bar (PC4 and 5)](#131-pca-error-bar-pc4-and-5)
 
 # 1. Initialization settings and functions
 
@@ -2617,5 +2620,237 @@ fig.arbitrary_seg[["par"]][["oma"]]=c(0, 0, 0, 0)
 
 png(paste0(project_dir,dim_reduction_dir, tSNE_dir, "/Lens_K_means_tSNE.png"), width = 3, height = 3, units = "in", res=600)
 print(fig.arbitrary_seg)
+dev.off()
+```
+
+# 13. Ploting classfied time series data
+
+## 13.1 PCA error bar (PC4 and 5)
+
+``` r
+library(Cardinal)
+library(MetaboAnalystR)
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(ggpubr)
+library(egg)
+library(stringr)
+library(reshape2)
+load(paste0(project_dir, "/large_files/Time_merged_PCA_all_bio.rda") )
+```
+
+``` r
+library(stringr)
+targetmzs=c(221.0521,223.0679, 265.0425, 295.0538, 345.0090, 571.0667)
+targetcpds <- c("SIL_Glucose", "SIL_Sorbitol", "SIL_G6P", "SIL_S7P", "SIL_F16BP", "SIL_UDP_Glucose")
+targetmzs_df <- data.frame(targetmzs = targetmzs,targetcpds=targetcpds )
+
+cls_merge_mt_mz<-str_split_fixed(colnames(cls_merge_mt),"@",2)[,1]
+cls_merge_mt_time<-str_split_fixed(colnames(cls_merge_mt),"@",2)[,2]
+cls_merge_mt[,cls_merge_mt_mz %in% match_mz(targetmzs,as.numeric(cls_merge_mt_mz),10,"ppm")]->plotdf
+plotdf<-melt(plotdf)
+plotdf<-as.data.frame(do.call(cbind,list(plotdf$Var1,str_split_fixed(plotdf$Var2,"@",2),plotdf$value)))
+colnames(plotdf)<-c("bin","mz","time","Intensity")
+
+cls_merge_mt_mz<-str_split_fixed(colnames(cls_merge_mt),"@",2)[,1]
+cls_merge_mt_time<-str_split_fixed(colnames(cls_merge_mt),"@",2)[,2]
+cls_merge_mt[,cls_merge_mt_mz %in% match_mz(targetmzs,as.numeric(cls_merge_mt_mz),10,"ppm")]->plotdf
+plotdf<-melt(plotdf)
+plotdf<-as.data.frame(do.call(cbind,list(plotdf$Var1,str_split_fixed(plotdf$Var2,"@",2),plotdf$value)))
+colnames(plotdf)<-c("bin","mz","time","Intensity")
+
+targetmzs_df$targetmzs <- match_mz(targetmzs, as.numeric(plotdf$mz), 10, "ppm")
+
+plotdf$cpd.name<- targetmzs_df$targetcpds[match(plotdf$mz, targetmzs_df$targetmzs)]
+unique(plotdf[,c("mz", "cpd.name")])
+
+set.seed(2)
+pca.kmean.res<- kmeans(PCA[["ind"]][["coord"]][,4:5],6, nstart = 25)
+Time_merged_pca<- data.frame(PCA[["ind"]][["coord"]][,4:5],rownames(PCA[["ind"]][["coord"]]))
+colnames(Time_merged_pca)<-c("Dim.4","Dim.5","bin")
+pca.kmean.res.cluster<-data.frame(pca.kmean.res$cluster)
+index<- match(Time_merged_pca$bin, as.numeric(rownames(pca.kmean.res.cluster)))
+Time_merged_pca$K_Label<- pca.kmean.res.cluster[,1][index]
+plotdf$Intensity<-as.numeric(plotdf$Intensity)
+
+plotdf$Label_PCA<-as.factor(Time_merged_pca$K_Label[match(plotdf$bin,Time_merged_pca$bin)])
+# plotdf$Label_Arbitrary<-factor(bin_freq$final[match(plotdf$bin,bin_freq$new_label_scale)],levels=c("Anterior","Posterior", "Equator", "IC", "Core"))
+plotdf<-plotdf[!is.na(plotdf$Label_PCA),]
+plotdf_trim<-unique(plotdf[,c("time","bin")])
+plotdf_trim<-table(plotdf_trim$bin)
+names(plotdf_trim[plotdf_trim==10])->trimedbin
+plotdf[plotdf$bin %in% trimedbin,]->plotdf
+plotdf$mz<-as.factor(plotdf$mz)
+
+
+k <- c(1:6)
+Mannual_label<- c( "Noise", "Inner Cortex","Noise", "Posterior", "Anterior","Equator + Core")
+df_Mannual_label<- data.frame(K_Label = k, Mannual_label= Mannual_label)
+
+df_Mannual_label$Mannual_label<- factor(df_Mannual_label$Mannual_label, levels =  c( "Anterior","Posterior", "Noise",  "Inner Cortex", "Equator + Core"))
+
+
+plotdf$Mannual_label <- df_Mannual_label$Mannual_label[match(plotdf$Label_PCA, df_Mannual_label$K_Label)]
+
+
+ data_summary <- function(data, varname, groupnames){
+  require(plyr)
+  summary_func <- function(x, col){
+    c(mean = mean(x[[col]], na.rm=TRUE),
+      sd = sd(x[[col]], na.rm=TRUE),
+      sem = sd(x[[col]], na.rm=TRUE)/sqrt(length(x[[col]])))
+  }
+  data_sum<-ddply(data, groupnames, .fun=summary_func,
+                  varname)
+  data_sum <- rename(data_sum, c("mean" = varname))
+ return(data_sum)
+ }
+ 
+
+ plotdf$Intensity <- as.numeric(plotdf$Intensity )
+ plotdf$Intensity[plotdf$Intensity==0]<-NA
+ 
+plotdf$cpd.name<- factor(plotdf$cpd.name, levels = targetcpds)
+ 
+df2 <- data_summary(plotdf, varname="Intensity", 
+                    groupnames=c("mz", "time","Mannual_label"))
+
+df2$cpd.name <- plotdf$cpd.name[match(df2$mz, plotdf$mz)]
+
+df2$time_incubation <- time_df$time[match(as.numeric(df2$time), time_df$class)]
+  
+df2_sub<- filter(df2, !Mannual_label == "Noise")
+ 
+p<- ggplot(df2_sub, aes(x=time_incubation, y=Intensity, group=Mannual_label, color=Mannual_label)) + 
+            geom_line() +
+            geom_point()+
+  #stat_smooth( method = lm, formula = y ~ poly(x, ploy_order), se = F) +
+            geom_errorbar(aes(ymin=Intensity-sem, ymax=Intensity+sem), width=.2, 
+                position=position_dodge(0.05))+
+      theme_article()+ 
+      theme(legend.position="none", 
+                        axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))+
+            ggh4x::facet_grid2(cols= vars(cpd.name), rows= vars(Mannual_label), scales = "free", independent = "y") 
+
+png(paste0(wd,"PCA_label_image","_anno_SIL_cpd_","summarized","_timeseries_plot_norm.png"),width = 8500,height = 4000,res=600)
+print(p)
+dev.off()
+```
+
+``` r
+targetmzs=c(221.0521,223.0679, 265.0425, 295.0538, 345.0090, 571.0667)
+targetcpds <- c("SIL_Glucose", "SIL_Sorbitol", "SIL_G6P", "SIL_S7P", "SIL_F16BP", "SIL_UDP_Glucose")
+targetmzs_df <- data.frame(targetmzs = targetmzs,targetcpds=targetcpds )
+
+cls_merge_mt_mz<- stringr::str_split_fixed(colnames(cls_merge_mt),"@",2)[,1]
+cls_merge_mt_time<-str_split_fixed(colnames(cls_merge_mt),"@",2)[,2]
+cls_merge_mt[,cls_merge_mt_mz %in% match_mz(targetmzs,as.numeric(cls_merge_mt_mz),10,"ppm")]->plotdf
+plotdf<-melt(plotdf)
+plotdf<-as.data.frame(do.call(cbind,list(plotdf$Var1,str_split_fixed(plotdf$Var2,"@",2),plotdf$value)))
+colnames(plotdf)<-c("bin","mz","time","Intensity")
+
+cls_merge_mt_mz<-str_split_fixed(colnames(cls_merge_mt),"@",2)[,1]
+cls_merge_mt_time<-str_split_fixed(colnames(cls_merge_mt),"@",2)[,2]
+cls_merge_mt[,cls_merge_mt_mz %in% match_mz(targetmzs,as.numeric(cls_merge_mt_mz),10,"ppm")]->plotdf
+plotdf<-melt(plotdf)
+plotdf<-as.data.frame(do.call(cbind,list(plotdf$Var1,str_split_fixed(plotdf$Var2,"@",2),plotdf$value)))
+colnames(plotdf)<-c("bin","mz","time","Intensity")
+
+targetmzs_df$targetmzs <- match_mz(targetmzs, as.numeric(plotdf$mz), 10, "ppm")
+
+plotdf$cpd.name<- targetmzs_df$targetcpds[match(plotdf$mz, targetmzs_df$targetmzs)]
+unique(plotdf[,c("mz", "cpd.name")])
+
+set.seed(2)
+pca.kmean.res<- kmeans(PCA[["ind"]][["coord"]][,4:5],6, nstart = 25)
+Time_merged_pca<- data.frame(PCA[["ind"]][["coord"]][,4:5],rownames(PCA[["ind"]][["coord"]]))
+colnames(Time_merged_pca)<-c("Dim.4","Dim.5","bin")
+pca.kmean.res.cluster<-data.frame(pca.kmean.res$cluster)
+index<- match(Time_merged_pca$bin, as.numeric(rownames(pca.kmean.res.cluster)))
+Time_merged_pca$K_Label<- pca.kmean.res.cluster[,1][index]
+plotdf$Intensity<-as.numeric(plotdf$Intensity)
+
+plotdf$Label_PCA<-as.factor(Time_merged_pca$K_Label[match(plotdf$bin,Time_merged_pca$bin)])
+# plotdf$Label_Arbitrary<-factor(bin_freq$final[match(plotdf$bin,bin_freq$new_label_scale)],levels=c("Anterior","Posterior", "Equator", "IC", "Core"))
+plotdf<-plotdf[!is.na(plotdf$Label_PCA),]
+plotdf_trim<-unique(plotdf[,c("time","bin")])
+plotdf_trim<-table(plotdf_trim$bin)
+names(plotdf_trim[plotdf_trim==10])->trimedbin
+plotdf[plotdf$bin %in% trimedbin,]->plotdf
+plotdf$mz<-as.factor(plotdf$mz)
+
+
+k <- c(1:6)
+Mannual_label<- c( "Noise", "Inner Cortex","Noise", "Posterior", "Anterior","Equator + Core")
+df_Mannual_label<- data.frame(K_Label = k, Mannual_label= Mannual_label)
+
+df_Mannual_label$Mannual_label<- factor(df_Mannual_label$Mannual_label, levels =  c( "Anterior","Posterior", "Noise",  "Inner Cortex", "Equator + Core"))
+
+
+plotdf$Mannual_label <- df_Mannual_label$Mannual_label[match(plotdf$Label_PCA, df_Mannual_label$K_Label)]
+
+
+ data_summary <- function(data, varname, groupnames){
+  require(plyr)
+  summary_func <- function(x, col){
+    c(mean = mean(x[[col]], na.rm=TRUE),
+      sd = sd(x[[col]], na.rm=TRUE),
+      sem = sd(x[[col]], na.rm=TRUE)/sqrt(length(x[[col]])))
+  }
+  data_sum<-ddply(data, groupnames, .fun=summary_func,
+                  varname)
+  data_sum <- rename(data_sum, c("mean" = varname))
+ return(data_sum)
+ }
+ 
+
+ plotdf$Intensity <- as.numeric(plotdf$Intensity )
+ plotdf$Intensity[plotdf$Intensity==0]<-NA
+ 
+plotdf$cpd.name<- factor(plotdf$cpd.name, levels = targetcpds)
+
+plotdf$y <- all_coordata_label_sel_arc_bind$y[match(as.numeric(plotdf$bin), all_coordata_label_sel_arc_bind$new_label_scale)]
+
+plotdf$x <- all_coordata_label_sel_arc_bind$x[match(as.numeric(plotdf$bin), all_coordata_label_sel_arc_bind$new_label_scale)]
+
+plotdf_cluster <-filter(plotdf, Mannual_label == "Equator + Core") 
+plotdf_rest<- filter(plotdf, !Mannual_label == "Equator + Core") 
+
+index_core<- which('&'(plotdf_cluster$y < 100, plotdf_cluster$y> 22))
+index_equator<- which('|'(plotdf_cluster$y >= 100, plotdf_cluster$y<= 22))
+plotdf_cluster$Mannual_label<-NA
+plotdf_cluster$Mannual_label[index_core]<- "Core"
+plotdf_cluster$Mannual_label[index_equator]<- "Equator"
+plotdf<- rbind(plotdf_rest, plotdf_cluster)
+plotdf$cpd.name<-factor(plotdf$cpd.name, levels = c("SIL_Glucose", "SIL_G6P", "SIL_F16BP", "SIL_S7P", "SIL_Sorbitol", "SIL_UDP_Glucose"))
+
+
+df2 <- data_summary(plotdf, varname="Intensity", 
+                    groupnames=c("mz", "time","Mannual_label"))
+
+df2$cpd.name <- plotdf$cpd.name[match(df2$mz, plotdf$mz)]
+
+df2$time_incubation <- time_df$time[match(as.numeric(df2$time), time_df$class)]
+  
+df2_sub<- filter(df2, !Mannual_label == "Noise")
+ 
+p<- ggplot(df2_sub, aes(x=time_incubation, y=Intensity, group=Mannual_label, color=Mannual_label)) + 
+            geom_line() +
+            geom_point()+
+  #stat_smooth( method = lm, formula = y ~ poly(x, ploy_order), se = F) +
+            geom_errorbar(aes(ymin=Intensity-sem, ymax=Intensity+sem), width=.2, 
+                position=position_dodge(0.05))+
+      theme_article()+ 
+      theme(legend.position="none", 
+                        axis.title.x=element_blank(),
+            axis.title.y=element_blank(),
+            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))+
+            ggh4x::facet_grid2(cols= vars(cpd.name), rows= vars(Mannual_label), scales = "free", independent = "y") 
+
+png(paste0(wd,"PCA_label_image","_anno_SIL_cpd_","summarized","_timeseries_plot_norm.png"),width = 8500,height = 4000,res=600)
+print(p)
 dev.off()
 ```
