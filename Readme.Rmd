@@ -2651,6 +2651,7 @@ load(paste0(project_dir, "/large_files/Time_merged_PCA_all_bio.rda") )
 ```
 
 ```{r, eval=F}
+library(stringr)
 targetmzs=c(221.0521,223.0679, 265.0425, 295.0538, 345.0090, 571.0667)
 targetcpds <- c("SIL_Glucose", "SIL_Sorbitol", "SIL_G6P", "SIL_S7P", "SIL_F16BP", "SIL_UDP_Glucose")
 targetmzs_df <- data.frame(targetmzs = targetmzs,targetcpds=targetcpds )
