@@ -595,7 +595,11 @@ install.packages("M3C")
 install.packages("plotly")
 install.packages("rsvd")
 install.packages("egg")
-
+install.packages("reshape2")
+install.packages("flextable")
+install.packages("grid")
+install.packages("wesanderson")
+install.packages("ggpubr")
 
 ```
 
