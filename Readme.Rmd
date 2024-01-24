@@ -569,10 +569,12 @@ install.packages("BiocManager")
 BiocManager::install("Cardinal")
 
 #MetaboAnalystR
+install.packages("devtools")
+library(devtools)
+devtools::install_github("xia-lab/MetaboAnalystR", build = TRUE, build_vignettes = TRUE, build_manual =T)
 
 #HiMAP
 install.packages("remotes")
-install.packages("devtools")
 #library(devtools)
 library(remotes)
 Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS" = "true")
