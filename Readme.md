@@ -1,7 +1,7 @@
 Annotation and visualisation of spatially and temporally resolved,
 isotopically-labelled imaging mass spectrometry metabolomics data
 ================
-Dingchang Shi, George Guo
+Dingchang Shi, Dr George Guo, Dr Gus Grey
 
 - [1. Initialization settings and
   functions](#1-initialization-settings-and-functions)

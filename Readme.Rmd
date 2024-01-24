@@ -1,6 +1,6 @@
 ---
 title: "Annotation and visualisation of spatially and temporally resolved, isotopically-labelled imaging mass spectrometry metabolomics data"
-author: "Dingchang Shi, George Guo"
+author: "Dingchang Shi, Dr George Guo, Dr Gus Grey"
 output:
   github_document:
     toc: true
