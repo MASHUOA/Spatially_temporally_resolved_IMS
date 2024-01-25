@@ -2,9 +2,6 @@
 title: "Annotation and visualisation of spatially and temporally resolved, isotopically-labelled imaging mass spectrometry metabolomics data"
 author: "Dingchang Shi, Dr George Guo, Dr Gus Grey"
 output:
-  github_document:
-    toc: true
-    toc_depth: 2
   html_document: 
     toc: yes
     toc_float: yes
@@ -14,7 +11,10 @@ output:
     highlight: zenburn
     fig_width: 10
     fig_height: 10
-    number_sections: yes
+    number_sections: no
+  github_document:
+    toc: true
+    toc_depth: 2
   word_document: default
   pdf_document: default
   md_document:
