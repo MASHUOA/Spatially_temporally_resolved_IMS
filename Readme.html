@@ -1581,12 +1581,10 @@ metabolomics data</h1>
 </div>
 
 
-<div id="initialization-settings-and-functions" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> 1. Initialization
-settings and functions</h1>
-<div id="raw-data-processed-spectrum-and-result" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> 1.1 Raw data,
-processed spectrum, and result</h2>
+<div id="initialization-settings-and-functions" class="section level1">
+<h1>1. Initialization settings and functions</h1>
+<div id="raw-data-processed-spectrum-and-result" class="section level2">
+<h2>1.1 Raw data, processed spectrum, and result</h2>
 <p>Raw data link for steps 3 and 4:</p>
 <p><a href="https://metaspace2020.eu/api_auth/review?prj=54e09ade-8cb1-11ee-adab-831686c45448&amp;token=pwemUgFOuNiB"><em>Project
 on metaspace</em></a></p>
@@ -1660,9 +1658,8 @@ files will be available in this folder for later steps.</p>
 for reviewing process: <a href="https://www.dropbox.com/t/jJc0Ehc0IlYCrXfg">Dropbox
 transfer</a></p>
 </div>
-<div id="global-functions-shown-in-the-rmd" class="section level2" number="1.2">
-<h2><span class="header-section-number">1.2</span> 1.2 Global functions
-(shown in the RMD)</h2>
+<div id="global-functions-shown-in-the-rmd" class="section level2">
+<h2>1.2 Global functions (shown in the RMD)</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>post_mod <span class="ot">&lt;-</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="cf">function</span> (fig, point_size) {</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>    <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(fig[[<span class="st">&quot;x&quot;</span>]][[<span class="st">&quot;data&quot;</span>]])) {</span>
@@ -2075,9 +2072,8 @@ transfer</a></p>
 <span id="cb2-410"><a href="#cb2-410" tabindex="-1"></a>  <span class="fu">return</span>(resdf)</span>
 <span id="cb2-411"><a href="#cb2-411" tabindex="-1"></a>}</span></code></pre></div>
 </div>
-<div id="package-setup" class="section level2" number="1.3">
-<h2><span class="header-section-number">1.3</span> 1.3 Package
-Setup</h2>
+<div id="package-setup" class="section level2">
+<h2>1.3 Package Setup</h2>
 <p>The t-SNE on large scale data requires <a href="https://github.com/KlugerLab/FIt-SNE" class="uri">https://github.com/KlugerLab/FIt-SNE</a> to be installed.
 FFTW (<a href="http://www.fftw.org/" class="uri">http://www.fftw.org/</a>) is also required. Please follow
 the instruction on this website and install the prerequisite “FFTW”.</p>
@@ -2149,9 +2145,8 @@ function available and working properly.</p>
 <span id="cb3-63"><a href="#cb3-63" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;ggpubr&quot;</span>)</span></code></pre></div>
 </div>
 </div>
-<div id="working-directory-setup" class="section level1" number="2">
-<h1><span class="header-section-number">2</span> 2. Working directory
-setup</h1>
+<div id="working-directory-setup" class="section level1">
+<h1>2. Working directory setup</h1>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(MetaboAnalystR)</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">library</span>(Cardinal)</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
@@ -2178,9 +2173,8 @@ setup</h1>
 <span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#data infromation </span></span>
 <span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>fileinfo_v2 <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="fu">paste0</span>(project_dir,<span class="st">&quot;/fileinfo_v2.csv&quot;</span>))</span></code></pre></div>
 </div>
-<div id="lens-coordinate-rescaling-and-alignment" class="section level1" number="3">
-<h1><span class="header-section-number">3</span> 3. Lens coordinate
-rescaling and alignment</h1>
+<div id="lens-coordinate-rescaling-and-alignment" class="section level1">
+<h1>3. Lens coordinate rescaling and alignment</h1>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(Cardinal)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">library</span>(hexbin)</span>
@@ -2220,9 +2214,8 @@ rescaling and alignment</h1>
 <span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a>bin<span class="sc">@</span>cID<span class="ot">-&gt;</span>pixeldf<span class="sc">$</span>new_label_scale</span>
 <span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co"># write.csv(pixeldf,paste0(wd,&quot;all_coordata_label_sel_arc_bind_scale.csv&quot;))</span></span></code></pre></div>
 </div>
-<div id="lens-to-lens-hexagonal-binning" class="section level1" number="4">
-<h1><span class="header-section-number">4</span> 4. Lens-to-lens
-hexagonal binning</h1>
+<div id="lens-to-lens-hexagonal-binning" class="section level1">
+<h1>4. Lens-to-lens hexagonal binning</h1>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>wd <span class="ot">&lt;-</span> project_dir</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>outwd<span class="ot">&lt;-</span> <span class="fu">paste0</span>(project_dir, spatial_alignment_dir)</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
@@ -2290,9 +2283,8 @@ hexagonal binning</h1>
 <span id="cb6-65"><a href="#cb6-65" tabindex="-1"></a></span>
 <span id="cb6-66"><a href="#cb6-66" tabindex="-1"></a><span class="fu">message</span>(label_sel,<span class="st">&quot; DONE&quot;</span>)</span></code></pre></div>
 </div>
-<div id="time-scale-transformation-of-the-lens-data" class="section level1" number="5">
-<h1><span class="header-section-number">5</span> 5. Time-scale
-transformation of the lens data</h1>
+<div id="time-scale-transformation-of-the-lens-data" class="section level1">
+<h1>5. Time-scale transformation of the lens data</h1>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>wd<span class="ot">&lt;-</span><span class="fu">paste0</span>(project_dir, spatial_alignment_dir)</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">setwd</span>(wd)</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
@@ -2341,15 +2333,15 @@ transformation of the lens data</h1>
 <span id="cb7-46"><a href="#cb7-46" tabindex="-1"></a></span>
 <span id="cb7-47"><a href="#cb7-47" tabindex="-1"></a><span class="fu">write.csv</span>(cls_merge_bind, <span class="fu">paste0</span>(wd, <span class="st">&quot;grouped_bio_rep_all_pixel_mean_label_time_merge.csv&quot;</span>))</span></code></pre></div>
 </div>
-<div id="dimensionality-reduction-top-loading-feature-selection-and-k-means-segmentation" class="section level1" number="6">
-<h1><span class="header-section-number">6</span> 6. Dimensionality
-reduction, top loading feature selection and K-means segmentation</h1>
+<div id="dimensionality-reduction-top-loading-feature-selection-and-k-means-segmentation" class="section level1">
+<h1>6. Dimensionality reduction, top loading feature selection and
+K-means segmentation</h1>
 <p>check if the file needed exists in the right folder; otherwise
 download from the repository</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">file.exists</span>(<span class="fu">paste0</span>(project_dir, spatial_alignment_dir, <span class="st">&quot;grouped_bio_rep_all_pixel_mean_label_time_merge.csv&quot;</span>))</span></code></pre></div>
-<div id="principle-conponent-analysis-and-top-loading-feature-selection" class="section level2" number="6.1">
-<h2><span class="header-section-number">6.1</span> 6.1 Principle
-conponent analysis and top loading feature selection</h2>
+<div id="principle-conponent-analysis-and-top-loading-feature-selection" class="section level2">
+<h2>6.1 Principle conponent analysis and top loading feature
+selection</h2>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">library</span>(FactoMineR)</span>
@@ -2397,9 +2389,8 @@ conponent analysis and top loading feature selection</h2>
 <span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a>Dim.feature.contri.summmary.list.bind <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(mz, Dim) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Rank =</span> <span class="fu">rank</span>(Contribution)) <span class="ot">-&gt;</span> Dim.feature.contri.summmary.list.bind</span>
 <span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a></span>
 <span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a><span class="fu">save</span>(<span class="at">list =</span> <span class="fu">c</span>(<span class="st">&quot;PCA&quot;</span>,<span class="st">&quot;PCA.contri&quot;</span>,<span class="st">&quot;PCA.desc&quot;</span>,<span class="st">&quot;Dim.feature.contri.list&quot;</span>,<span class="st">&quot;cls_merge_mt&quot;</span>,<span class="st">&quot;Dim.feature.contri.summmary.list.bind&quot;</span>), <span class="at">file =</span> <span class="fu">paste0</span>(project_dir, dim_reduction_dir, PCA_dir,<span class="st">&quot;Time_merged_PCA_all_bio.rda&quot;</span>))</span></code></pre></div>
-<div id="pca-single-dimension-k-means" class="section level3" number="6.1.1">
-<h3><span class="header-section-number">6.1.1</span> 6.1.1 PCA Single
-dimension K means</h3>
+<div id="pca-single-dimension-k-means" class="section level3">
+<h3>6.1.1 PCA Single dimension K means</h3>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">library</span>(Cardinal)</span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
@@ -2443,9 +2434,8 @@ dimension K means</h3>
 <span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 </div>
-<div id="umap-all-bio-rep" class="section level2" number="6.2">
-<h2><span class="header-section-number">6.2</span> 6.2 UMAP (all bio
-rep)</h2>
+<div id="umap-all-bio-rep" class="section level2">
+<h2>6.2 UMAP (all bio rep)</h2>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">library</span>(Cardinal)</span>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="fu">library</span>(rsvd)</span>
@@ -2475,9 +2465,8 @@ rep)</h2>
 <span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a>Time_merged_umap<span class="ot">&lt;-</span><span class="fu">data.frame</span>(features.umap<span class="sc">$</span>data<span class="sc">$</span>X1,features.umap<span class="sc">$</span>data<span class="sc">$</span>X2,<span class="fu">rownames</span>(cls_merge_mt_test))</span>
 <span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a><span class="fu">colnames</span>(Time_merged_umap)<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">&quot;x&quot;</span>,<span class="st">&quot;y&quot;</span>,<span class="st">&quot;bin&quot;</span>)</span>
 <span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a><span class="fu">saveRDS</span>(Time_merged_umap, <span class="fu">paste0</span>(project_dir, dim_reduction_dir, UMAP_dir, <span class="st">&quot;/Time_merged_umap_all_bio.rds&quot;</span>))</span></code></pre></div>
-<div id="umap-single-dimension-lens-projection" class="section level3" number="6.2.1">
-<h3><span class="header-section-number">6.2.1</span> 6.2.1 UMAP Single
-dimension lens projection</h3>
+<div id="umap-single-dimension-lens-projection" class="section level3">
+<h3>6.2.1 UMAP Single dimension lens projection</h3>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co">#Detect if &quot;combinedimdata&quot; exists</span></span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">exists</span>(<span class="st">&quot;combinedimdata&quot;</span>) <span class="sc">==</span> <span class="cn">TRUE</span>){</span>
@@ -2516,9 +2505,8 @@ dimension lens projection</h3>
 <span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 </div>
-<div id="t-sne-all-bio-rep" class="section level2" number="6.3">
-<h2><span class="header-section-number">6.3</span> 6.3 t-SNE (all bio
-rep)</h2>
+<div id="t-sne-all-bio-rep" class="section level2">
+<h2>6.3 t-SNE (all bio rep)</h2>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="fu">paste0</span>(project_dir, dim_reduction_dir, tSNE_dir))</span>
 <span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
@@ -2542,9 +2530,8 @@ rep)</h2>
 <span id="cb14-21"><a href="#cb14-21" tabindex="-1"></a>features.tsne<span class="sc">$</span>Bin<span class="ot">&lt;-</span><span class="fu">rownames</span>(cls_merge_mt_test)</span>
 <span id="cb14-22"><a href="#cb14-22" tabindex="-1"></a>Time_merged_tsne<span class="ot">&lt;-</span><span class="fu">data.frame</span>(features.tsne<span class="sc">$</span>V1,features.tsne<span class="sc">$</span>V2, features.tsne<span class="sc">$</span>Bin)</span>
 <span id="cb14-23"><a href="#cb14-23" tabindex="-1"></a><span class="fu">saveRDS</span>(Time_merged_tsne, <span class="fu">paste0</span>(wd, <span class="st">&quot;/Time_merged_tsne_all_bio.rds&quot;</span>))</span></code></pre></div>
-<div id="tsne-single-dimension-k-means" class="section level3" number="6.3.1">
-<h3><span class="header-section-number">6.3.1</span> 6.3.1 tSNE Single
-dimension K means</h3>
+<div id="tsne-single-dimension-k-means" class="section level3">
+<h3>6.3.1 tSNE Single dimension K means</h3>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co">#Detect if &quot;combinedimdata&quot; exists</span></span>
 <span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a></span>
 <span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">exists</span>(<span class="st">&quot;combinedimdata&quot;</span>) <span class="sc">==</span> <span class="cn">TRUE</span>){</span>
@@ -2590,9 +2577,8 @@ dimension K means</h3>
 </div>
 </div>
 </div>
-<div id="metabolite-library-construction-function" class="section level1" number="7">
-<h1><span class="header-section-number">7</span> 7. Metabolite library
-construction (function)</h1>
+<div id="metabolite-library-construction-function" class="section level1">
+<h1>7. Metabolite library construction (function)</h1>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>mummichog.lib.mod<span class="ot">&lt;-</span><span class="cf">function</span>(<span class="at">lib=</span><span class="st">&quot;bta_kegg&quot;</span>,<span class="at">lib.new=</span><span class="st">&quot;bta_kegg_13C&quot;</span>,<span class="at">C13_number=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">6</span>),<span class="at">C13_deltamass=</span><span class="fl">1.003355</span>,<span class="at">wd=</span><span class="fu">getwd</span>(),<span class="at">force_update_lib=</span>F,<span class="at">adducts_list=</span><span class="st">&quot;all&quot;</span>,<span class="at">method=</span><span class="fu">c</span>(<span class="st">&quot;new_cpd&quot;</span>,<span class="st">&quot;new_adduct&quot;</span>)){</span>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a></span>
 <span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>filenm <span class="ot">&lt;-</span> <span class="fu">paste</span>(wd,<span class="st">&quot;/&quot;</span>,lib, <span class="st">&quot;.qs&quot;</span>, <span class="at">sep=</span><span class="st">&quot;&quot;</span>)</span>
@@ -2720,13 +2706,11 @@ construction (function)</h1>
 <span id="cb17-125"><a href="#cb17-125" tabindex="-1"></a><span class="fu">return</span>(mummichog.lib.new)</span>
 <span id="cb17-126"><a href="#cb17-126" tabindex="-1"></a>}</span></code></pre></div>
 </div>
-<div id="st-round-metabolomic-annotation-and-pathway-enrichment-for-all-detected-mz-features" class="section level1" number="8">
-<h1><span class="header-section-number">8</span> 8. 1st round
-metabolomic annotation and pathway enrichment for all detected m/z
-features</h1>
-<div id="metabolite-annotation-and-pathway-enrichment" class="section level2" number="8.1">
-<h2><span class="header-section-number">8.1</span> 8.1 Metabolite
-annotation and pathway enrichment</h2>
+<div id="st-round-metabolomic-annotation-and-pathway-enrichment-for-all-detected-mz-features" class="section level1">
+<h1>8. 1st round metabolomic annotation and pathway enrichment for all
+detected m/z features</h1>
+<div id="metabolite-annotation-and-pathway-enrichment" class="section level2">
+<h2>8.1 Metabolite annotation and pathway enrichment</h2>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>outwd <span class="ot">=</span> <span class="fu">paste0</span>(project_dir, dim_reduction_dir,PCA_dir)</span>
 <span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a></span>
 <span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="cf">for</span>  (dim <span class="cf">in</span> <span class="fu">paste0</span>(<span class="st">&quot;Dim.&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)){</span>
@@ -2782,9 +2766,8 @@ annotation and pathway enrichment</h2>
 <span id="cb18-53"><a href="#cb18-53" tabindex="-1"></a>df_C13[[<span class="fu">as.character</span>(p_thres)]]<span class="sc">$</span>source<span class="ot">&lt;-</span>p_thres</span>
 <span id="cb18-54"><a href="#cb18-54" tabindex="-1"></a>}</span></code></pre></div>
 </div>
-<div id="pathway-summary" class="section level2" number="8.2">
-<h2><span class="header-section-number">8.2</span> 8.2 pathway
-summary</h2>
+<div id="pathway-summary" class="section level2">
+<h2>8.2 pathway summary</h2>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="co">#read KEGG library</span></span>
 <span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a></span>
 <span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>bta_kegg<span class="ot">&lt;-</span> qs<span class="sc">::</span><span class="fu">qread</span>( <span class="fu">paste0</span>(outwd, <span class="st">&quot;/Metabo_Dim.1/bta_kegg.qs&quot;</span>) )</span>
@@ -2880,9 +2863,8 @@ summary</h2>
 <span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>Pathway_matched_sig_summary<span class="ot">&lt;-</span>Pathway_matched_sig_summary[<span class="sc">!</span><span class="fu">duplicated</span>(Pathway_matched_sig_summary[,<span class="fu">c</span>( <span class="st">&quot;Matched.Compound&quot;</span>, <span class="st">&quot;Matched.Form&quot;</span>,<span class="st">&quot;Dim&quot;</span> )]),]</span></code></pre></div>
 </div>
 </div>
-<div id="feature-scoring-and-fdr-controlled-filtering" class="section level1" number="9">
-<h1><span class="header-section-number">9</span> 9. Feature scoring and
-FDR controlled filtering</h1>
+<div id="feature-scoring-and-fdr-controlled-filtering" class="section level1">
+<h1>9. Feature scoring and FDR controlled filtering</h1>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">library</span>(HiTMaP)</span>
 <span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
 <span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>  wd<span class="ot">=</span><span class="st">&quot;V:/Bioinformatics/test_scoring_cpd_mummichog/&quot;</span></span>
@@ -3007,10 +2989,9 @@ FDR controlled filtering</h1>
 <span id="cb22-122"><a href="#cb22-122" tabindex="-1"></a><span class="co">#    }</span></span>
 <span id="cb22-123"><a href="#cb22-123" tabindex="-1"></a><span class="co">#     }</span></span></code></pre></div>
 </div>
-<div id="nd-round-metabolomic-annotation-and-pathway-enrichment-within-fdr-filtered-features" class="section level1" number="10">
-<h1><span class="header-section-number">10</span> 10. 2nd round
-metabolomic annotation and pathway enrichment within FDR filtered
-features</h1>
+<div id="nd-round-metabolomic-annotation-and-pathway-enrichment-within-fdr-filtered-features" class="section level1">
+<h1>10. 2nd round metabolomic annotation and pathway enrichment within
+FDR filtered features</h1>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
 <span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
 <span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a></span>
@@ -3247,12 +3228,10 @@ features</h1>
 <span id="cb23-234"><a href="#cb23-234" tabindex="-1"></a></span>
 <span id="cb23-235"><a href="#cb23-235" tabindex="-1"></a><span class="fu">write.csv</span>(df_output, <span class="fu">paste0</span>(outwd, <span class="st">&quot;pathway_final_output_1_to_5_FDR_0.1_remapping.csv&quot;</span>), <span class="at">row.names =</span> F)</span></code></pre></div>
 </div>
-<div id="feature-visualization" class="section level1" number="11">
-<h1><span class="header-section-number">11</span> 11. Feature
-visualization</h1>
-<div id="selected-bio-rep" class="section level2" number="11.1">
-<h2><span class="header-section-number">11.1</span> 11.1 Selected bio
-rep</h2>
+<div id="feature-visualization" class="section level1">
+<h1>11. Feature visualization</h1>
+<div id="selected-bio-rep" class="section level2">
+<h2>11.1 Selected bio rep</h2>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">library</span>(Cardinal)</span>
 <span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
 <span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
@@ -3382,9 +3361,8 @@ rep</h2>
 <span id="cb26-49"><a href="#cb26-49" tabindex="-1"></a></span>
 <span id="cb26-50"><a href="#cb26-50" tabindex="-1"></a><span class="fu">write.csv</span>(cls_merge_bind, <span class="fu">paste0</span>(project_dir, visualization_dir , heximg_dir, <span class="st">&quot;grouped_bio_rep_slt_pixel_mean_label_time_merge_new.csv&quot;</span>))</span></code></pre></div>
 </div>
-<div id="visualization" class="section level2" number="11.2">
-<h2><span class="header-section-number">11.2</span> 11.2
-Visualization</h2>
+<div id="visualization" class="section level2">
+<h2>11.2 Visualization</h2>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>mum.url <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">&quot;https://www.metaboanalyst.ca/resources/libs/mummichog/bta_kegg.qs&quot;</span>)</span>
 <span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a></span>
 <span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a><span class="fu">download.file</span>(mum.url, <span class="fu">paste0</span>(project_dir, visualization_dir, heximg_dir, <span class="st">&quot;bta_kegg.qs&quot;</span>), </span>
@@ -3478,12 +3456,10 @@ Visualization</h2>
 <span id="cb27-91"><a href="#cb27-91" tabindex="-1"></a>}</span>
 <span id="cb27-92"><a href="#cb27-92" tabindex="-1"></a>}</span></code></pre></div>
 </div>
-<div id="metabolite-annotation-in-pathway-format" class="section level2" number="11.3">
-<h2><span class="header-section-number">11.3</span> 11.3 Metabolite
-annotation in pathway format</h2>
-<div id="ion-image-plotting-skip-if-ion-image-available" class="section level3" number="11.3.1">
-<h3><span class="header-section-number">11.3.1</span> 11.3.1 ion image
-plotting (skip if ion image available )</h3>
+<div id="metabolite-annotation-in-pathway-format" class="section level2">
+<h2>11.3 Metabolite annotation in pathway format</h2>
+<div id="ion-image-plotting-skip-if-ion-image-available" class="section level3">
+<h3>11.3.1 ion image plotting (skip if ion image available )</h3>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
 <span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a></span>
 <span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a>run_demo_slt<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">&quot;ff_trim_02_08042021&quot;</span>,<span class="st">&quot;5minsilglucose_2nd_20201116_trim&quot;</span>,<span class="st">&quot;15minsilglucose_2nd_20201116_trim&quot;</span>,<span class="st">&quot;30minsilglucose_2nd_20201116_trim&quot;</span>,<span class="st">&quot;1hrsilglucose_201130_trim&quot;</span>,<span class="st">&quot;2hrsilglucose_2nd_20201109_trim&quot;</span>,<span class="st">&quot;4hr_01_20201109_trim&quot;</span>,<span class="st">&quot;8hr_01_20201109_trim&quot;</span>,<span class="st">&quot;16hrsilglucose_03_20211123_trim&quot;</span>,<span class="st">&quot;20hrsilglucose_02_20211123_trim&quot;</span>)</span>
@@ -3525,9 +3501,8 @@ plotting (skip if ion image available )</h3>
 <span id="cb29-23"><a href="#cb29-23" tabindex="-1"></a><span class="fu">dev.off</span>()</span>
 <span id="cb29-24"><a href="#cb29-24" tabindex="-1"></a>}</span></code></pre></div>
 </div>
-<div id="assign-metabolites-to-pathways" class="section level3" number="11.3.2">
-<h3><span class="header-section-number">11.3.2</span> 11.3.2 Assign
-metabolites to pathways</h3>
+<div id="assign-metabolites-to-pathways" class="section level3">
+<h3>11.3.2 Assign metabolites to pathways</h3>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a>df_output<span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">paste0</span>(project_dir, dim_reduction_dir, PCA_dir,  <span class="st">&quot;/pathway_final_output_1_to_5_FDR_0.1_remapping.csv&quot;</span>) )</span>
 <span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a></span>
 <span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a>cpd.high.quality <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">paste0</span>(project_dir, dim_reduction_dir, PCA_dir, <span class="st">&quot;/Metabo_Dim.1FDR_0.1/mummichog_matched_compound_all.csv&quot;</span>))</span>
@@ -3721,8 +3696,8 @@ metabolites to pathways</h3>
 </div>
 </div>
 </div>
-<div id="shrunk-data" class="section level1" number="12">
-<h1><span class="header-section-number">12</span> 12. Shrunk data</h1>
+<div id="shrunk-data" class="section level1">
+<h1>12. Shrunk data</h1>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="fu">paste0</span>(project_dir, shrink_dir))</span>
 <span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a></span>
 <span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a><span class="fu">library</span>(Cardinal)</span>
@@ -3754,9 +3729,8 @@ metabolites to pathways</h3>
 <span id="cb32-29"><a href="#cb32-29" tabindex="-1"></a></span>
 <span id="cb32-30"><a href="#cb32-30" tabindex="-1"></a><span class="fu">print</span>(fig.arbitrary_seg)</span>
 <span id="cb32-31"><a href="#cb32-31" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div>
-<div id="pca-visualisation" class="section level2" number="12.1">
-<h2><span class="header-section-number">12.1</span> 12.1 PCA
-visualisation</h2>
+<div id="pca-visualisation" class="section level2">
+<h2>12.1 PCA visualisation</h2>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="fu">library</span>(egg)</span>
 <span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a><span class="fu">library</span>(rsvd)</span>
 <span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
@@ -3847,9 +3821,8 @@ visualisation</h2>
 <span id="cb33-88"><a href="#cb33-88" tabindex="-1"></a></span>
 <span id="cb33-89"><a href="#cb33-89" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div>
 </div>
-<div id="pca-k-means" class="section level2" number="12.2">
-<h2><span class="header-section-number">12.2</span> 12.2 PCA K
-means</h2>
+<div id="pca-k-means" class="section level2">
+<h2>12.2 PCA K means</h2>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="co">#Dim.4 vs Dim.5</span></span>
 <span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a></span>
 <span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2</span>)</span>
@@ -3932,9 +3905,8 @@ means</h2>
 <span id="cb34-80"><a href="#cb34-80" tabindex="-1"></a><span class="fu">print</span>(fig.arbitrary_seg)</span>
 <span id="cb34-81"><a href="#cb34-81" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div>
 </div>
-<div id="umap-k-means" class="section level2" number="12.3">
-<h2><span class="header-section-number">12.3</span> 12.3 UMAP K
-means</h2>
+<div id="umap-k-means" class="section level2">
+<h2>12.3 UMAP K means</h2>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="fu">library</span>(rsvd)</span>
 <span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -4037,9 +4009,8 @@ means</h2>
 <span id="cb36-32"><a href="#cb36-32" tabindex="-1"></a><span class="fu">print</span>(fig.arbitrary_seg)</span>
 <span id="cb36-33"><a href="#cb36-33" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div>
 </div>
-<div id="t-sne-k-means" class="section level2" number="12.4">
-<h2><span class="header-section-number">12.4</span> 12.4 t-SNE K
-means</h2>
+<div id="t-sne-k-means" class="section level2">
+<h2>12.4 t-SNE K means</h2>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="fu">library</span>(rsvd)</span>
 <span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -4134,12 +4105,10 @@ means</h2>
 <span id="cb38-33"><a href="#cb38-33" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div>
 </div>
 </div>
-<div id="ploting-classfied-time-series-data" class="section level1" number="13">
-<h1><span class="header-section-number">13</span> 13. Ploting classfied
-time series data</h1>
-<div id="pca-error-bar-pc4-and-5" class="section level2" number="13.1">
-<h2><span class="header-section-number">13.1</span> 13.1 PCA error bar
-(PC4 and 5)</h2>
+<div id="ploting-classfied-time-series-data" class="section level1">
+<h1>13. Ploting classfied time series data</h1>
+<div id="pca-error-bar-pc4-and-5" class="section level2">
+<h2>13.1 PCA error bar (PC4 and 5)</h2>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a><span class="fu">library</span>(Cardinal)</span>
 <span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a><span class="fu">library</span>(MetaboAnalystR)</span>
 <span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
