@@ -1,55 +1,3 @@
-Annotation and visualisation of spatially and temporally resolved,
-isotopically-labelled imaging mass spectrometry metabolomics data
-================
-Dingchang Shi, Dr George Guo, Dr Gus Grey
-
-- [1. Initialization settings and
-  functions](#1-initialization-settings-and-functions)
-  - [1.1 Raw data, processed spectrum, and
-    result](#11-raw-data-processed-spectrum-and-result)
-  - [1.2 Global functions (shown in the
-    RMD)](#12-global-functions-shown-in-the-rmd)
-  - [1.3 Package Setup](#13-package-setup)
-- [2. Working directory setup](#2-working-directory-setup)
-- [3. Lens coordinate rescaling and
-  alignment](#3-lens-coordinate-rescaling-and-alignment)
-- [4. Lens-to-lens hexagonal binning](#4-lens-to-lens-hexagonal-binning)
-- [5. Time-scale transformation of the lens
-  data](#5-time-scale-transformation-of-the-lens-data)
-- [6. Dimensionality reduction, top loading feature selection and
-  K-means
-  segmentation](#6-dimensionality-reduction-top-loading-feature-selection-and-k-means-segmentation)
-  - [6.1 Principle conponent analysis and top loading feature
-    selection](#61-principle-conponent-analysis-and-top-loading-feature-selection)
-  - [6.2 UMAP (all bio rep)](#62-umap-all-bio-rep)
-  - [6.3 t-SNE (all bio rep)](#63-t-sne-all-bio-rep)
-- [7. Metabolite library construction
-  (function)](#7-metabolite-library-construction-function)
-- [8. 1st round metabolomic annotation and pathway enrichment for all
-  detected m/z
-  features](#8-1st-round-metabolomic-annotation-and-pathway-enrichment-for-all-detected-mz-features)
-  - [8.1 Metabolite annotation and pathway
-    enrichment](#81-metabolite-annotation-and-pathway-enrichment)
-  - [8.2 pathway summary](#82-pathway-summary)
-- [9. Feature scoring and FDR controlled
-  filtering](#9-feature-scoring-and-fdr-controlled-filtering)
-- [10. 2nd round metabolomic annotation and pathway enrichment within
-  FDR filtered
-  features](#10-2nd-round-metabolomic-annotation-and-pathway-enrichment-within-fdr-filtered-features)
-- [11. Feature visualization](#11-feature-visualization)
-  - [11.1 Selected bio rep](#111-selected-bio-rep)
-  - [11.2 Visualization](#112-visualization)
-  - [11.3 Metabolite annotation in pathway
-    format](#113-metabolite-annotation-in-pathway-format)
-- [12. Shrunk data](#12-shrunk-data)
-  - [12.1 PCA visualisation](#121-pca-visualisation)
-  - [12.2 PCA K means](#122-pca-k-means)
-  - [12.3 UMAP K means](#123-umap-k-means)
-  - [12.4 t-SNE K means](#124-t-sne-k-means)
-- [13. Ploting classfied time series
-  data](#13-ploting-classfied-time-series-data)
-  - [13.1 PCA error bar (PC4 and 5)](#131-pca-error-bar-pc4-and-5)
-
 # 1. Initialization settings and functions
 
 ## 1.1 Raw data, processed spectrum, and result
@@ -2041,7 +1989,27 @@ dev.off()
 
 ### 11.3.2 Assign metabolites to pathways
 
+Loading Pathway database and matched compound information
+
 ``` r
+bta_kegg<- qs::qread(paste0(project_dir, dim_reduction_dir, PCA_dir, "/Metabo_Dim.1FDR_0.1/bta_kegg_13C_adduct.qs"))
+cpd.info<- data.frame(cpd.name = bta_kegg[["cpd.lib"]][["name"]], id = bta_kegg[["cpd.lib"]][["id"]])
+
+
+pathway.db<-list()
+for ( x in 1:length(bta_kegg[["pathways"]][["name"]])){
+  pathway.db[[x]] <- data.frame(pathway.name = bta_kegg[["pathways"]][["name"]][x], pathway.cpd=          paste(bta_kegg[["pathways"]][["cpds"]][[x]], collapse = ";"))
+    }
+
+pathway.db<- do.call(rbind, pathway.db)
+pathway.info <- data.frame(pathway.name = bta_kegg[["pathways"]][["name"]], pathway.cpd = paste(bta_kegg[["pathways"]][["cpds"]], collapse = ";"))
+```
+
+Summarize the matched compound information and PCA loading information
+
+``` r
+library(tidyverse)
+
 df_output<- read.csv(paste0(project_dir, dim_reduction_dir, PCA_dir,  "/pathway_final_output_1_to_5_FDR_0.1_remapping.csv") )
 
 cpd.high.quality <- read.csv(paste0(project_dir, dim_reduction_dir, PCA_dir, "/Metabo_Dim.1FDR_0.1/mummichog_matched_compound_all.csv"))
@@ -2049,6 +2017,8 @@ cpd.high.quality <- read.csv(paste0(project_dir, dim_reduction_dir, PCA_dir, "/M
 pathway.target<- unique(df_output$Pathway)
 pathway.target <- pathway.db[which(pathway.info$pathway.name %in% pathway.target),]
 rownames(pathway.target)<-pathway.target$pathway.name
+pathway.target.cpddf<-pathway.target %>% group_by(pathway.name) %>% separate_longer_delim(pathway.cpd, delim = ";")
+pathway.target.cpddf.matched<-merge(cpd.high.quality,pathway.target.cpddf, by.x="Matched.Compound", by.y="pathway.cpd")
 
 outwd<- paste0(project_dir, dim_reduction_dir, PCA_dir)
 
@@ -2068,7 +2038,7 @@ pathway.sig <- unique(df_output$Pathway)
 
 pathway.cpd<- list()
 for (pathway in  pathway.target$pathway.name){
-  pathway.cpd[[pathway]] <- unlist ( str_split(pathway.target[pathway,"pathway.cpd"], ";") )
+  pathway.cpd[[pathway]] <- unlist ( stringr::str_split(pathway.target[pathway,"pathway.cpd"], ";") )
 
 }
 
@@ -2078,17 +2048,22 @@ lapply(names(pathway.cpd), function(x){
   df
   })->Pathway_matched_sig
 Pathway_matched_sig<-do.call(rbind,Pathway_matched_sig)
+
+pathway.target.cpddf.matched.nonsig<- pathway.target.cpddf.matched[!pathway.target.cpddf.matched$Query.Mass %in% Pathway_matched_sig$Query.Mass,]
+pathway.target.cpddf.matched.nonsig$Dim=""
+pathway.target.cpddf.matched.nonsig$Pathway<-pathway.target.cpddf.matched.nonsig$pathway.name
+pathway.target.cpddf.matched.nonsig$pathway.name<-NULL
+Pathway_matched_all<-rbind(Pathway_matched_sig,pathway.target.cpddf.matched.nonsig)
 ```
+
+Rendering pathway map with matched sig compound information:
 
 ``` r
 outwd= paste0(project_dir, dim_reduction_dir, PCA_dir, ion_images_dir)
-# Pathway_matched_sig_summary<-Pathway_matched_sig_summary[!duplicated(Pathway_matched_sig_summary[,c( "Matched.Compound", "Matched.Form","Dim" )]),]
 library(magick)
 library(flextable)
 library(ggplot2)
 library(grid)
-
-
 Pathway_matched_sig_summary<-Pathway_matched_sig
 Pathway_matched_sig_summary<-Pathway_matched_sig_summary[!duplicated(Pathway_matched_sig_summary[,c( "Matched.Compound", "Matched.Form","Dim" )]),]
 
@@ -2121,59 +2096,6 @@ for (pathway in unique(Pathway_matched_sig_summary$Pathway)){
       #colnames(tb)<-c("CPD_name","Isotype", "Dim")
       tb<-as_tibble(tb)
       set_flextable_defaults(font.size =10)
-  #     ft_raster_cpd <- tb %>%
-  # as.data.frame(.) %>% flextable::flextable() %>% flextable::delete_part(part = "header") %>% 
-  #       bg( bg = "transparent", part = "all") %>%
-  #       #flextable::delete_part(part = "header")  %>%
-  #       flextable::color(color = "white") %>% border_remove %>%
-  #       #flextable::delete_part(part = "footer")  %>%  
-  #       set_table_properties(width = 1, layout = "autofit") 
-  #     # ft_raster_cpd[["body"]][["styles"]][["cells"]][["background.color"]]->ft_raster_cpd[["body"]][["styles"]][["cells"]][["background"]]
-  # 
-  #    ft_raster_cpd<-ft_raster_cpd %>% 
-  #       flextable::as_raster()
-  #     ft_raster_iso <- tb[,"Isotype"] %>% flextable::flextable() %>%
-  #       set_table_properties(width = 1, layout = "autofit")%>%
-  #       #width(j=1, width = 550) %>% width(j=2, width = 100) %>%
-  #       #flextable::delete_part(part = "header") %>%  
-  #       flextable::color(color = "white") %>% border_remove %>%
-  #       #flextable::delete_part(part = "footer") %>% 
-  #       flextable::as_raster()
-  #     
-  #       dim_df<-str_remove_all(tb[1,"Dim"],"Dim.")
-  #     ft_raster_dim <- as_tibble(dim_df) %>% flextable::flextable() %>%
-  #       set_table_properties(width = 1, layout = "autofit")%>%
-  #       #width(j=1, width = 550) %>% width(j=2, width = 100) %>%
-  #       #flextable::delete_part(part = "header") %>%  
-  #       flextable::color(color = "white") %>% border_remove %>% 
-  #       #flextable::delete_part(part = "footer") %>% 
-  #       flextable::as_raster()
-     
-      
-      # legend <- image_blank(width = img_info$width[Cpd]/1.5, height=img_info$height[Cpd], color="black") 
-      # legend <- image_ggplot(legend) + theme_void() + 
-      #   annotation_custom(rasterGrob(ft_raster_cpd), xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)
-      # legend1 <- image_graph(width = img_info$width[Cpd]/1.5, height=img_info$height[Cpd], bg="black")
-      # print(legend)
-      # dev.off()
-      # 
-      # legend <- image_blank(width = img_info$width[Cpd]/5, height=img_info$height[Cpd], color="black")
-      # legend <- image_ggplot(legend) + theme_void() + 
-      #   annotation_custom(rasterGrob(ft_raster_iso), xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)
-      # legend2 <- image_graph(width = img_info$width[Cpd]/5, height=img_info$height[Cpd], bg="black"  )
-      # print(legend)
-      # dev.off()
-      # 
-      # 
-      #  legend <- image_blank(width = img_info$width[Cpd]/5, height=img_info$height[Cpd], color="black")
-      # legend <- image_ggplot(legend) + theme_void() + 
-      #   annotation_custom(rasterGrob(ft_raster_dim), xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)
-      # legend3 <- image_graph(width = img_info$width[Cpd]/5, height=img_info$height[Cpd], bg="black"  )
-      # print(legend)
-      # dev.off()
-      
-      
-      #img_set[Cpd]<-image_append(c(img_set[Cpd],legend1,legend2,legend3),stack = F)
  }
     img_set_append<-image_append(img_set,stack = T)
     img_set_info<-image_info(img_set_append)
@@ -2182,14 +2104,10 @@ for (pathway in unique(Pathway_matched_sig_summary$Pathway)){
       ft_raster_cpd <- tb %>%
   as.data.frame(.) %>% flextable::flextable() %>% flextable::delete_part(part = "header") %>% 
         bg( bg = "transparent", part = "all") %>%
-        #flextable::delete_part(part = "header")  %>%
         flextable::color(color = "white") %>% border_remove %>%
-        #set_table_properties(layout = "autofit") %>%
-        #flextable::delete_part(part = "footer")  %>%  
         height_all(height = 1) %>%
         hrule(rule = "exact")
-      # ft_raster_cpd[["body"]][["styles"]][["cells"]][["background.color"]]->ft_raster_cpd[["body"]][["styles"]][["cells"]][["background"]]
-  
+
      ft_raster_cpd<-ft_raster_cpd %>% 
         flextable::as_raster()
       legend <- image_blank(width = 1500, height=img_set_info$height, color="black")
@@ -2198,9 +2116,6 @@ for (pathway in unique(Pathway_matched_sig_summary$Pathway)){
       legend1 <- image_graph(width = 1500, height=img_set_info$height, bg="black")
       print(legend)
       dev.off()
-
-    # header <- image_blank(width = img_set_info$width, height=img_set_info$width/10/3,color = "black")
-    # header<-image_annotate(header,paste(y,z),gravity = "West",size=img_set_info$width/10/4,color = "white")
     img_set_append_anno<-image_append(c(img_set_append,legend1),stack = F)
     image_write(img_set_append_anno,paste0(outwd,pathway,"FDR_0.1_remapping.png"))
     
@@ -2210,17 +2125,93 @@ for (pathway in unique(Pathway_matched_sig_summary$Pathway)){
       ft_raster_cpd <- tb %>%
   as.data.frame(.) %>% flextable::flextable() %>% flextable::delete_part(part = "header") %>% 
         bg( bg = "transparent", part = "all") %>%
-        # width(j = 1,width = 1.1) %>%
-        # width(j = 2,width = 0.2) %>%
-        # width(j = 3,width = 0.5) %>%
-        #flextable::delete_part(part = "header")  %>%
         flextable::color(color = "white") %>% border_remove %>%
-        #set_table_properties(layout = "autofit") %>%
-        #flextable::delete_part(part = "footer")  %>%  
         height_all(height = 1) %>%
         hrule(rule = "exact")
-      # ft_raster_cpd[["body"]][["styles"]][["cells"]][["background.color"]]->ft_raster_cpd[["body"]][["styles"]][["cells"]][["background"]]
+     ft_raster_cpd<-ft_raster_cpd %>% 
+        flextable::as_raster()
+      legend <- image_blank(width = 1200, height=img_set_info$height, color="black")
+      legend <- image_ggplot(legend) + theme_void() +
+        annotation_custom(rasterGrob(ft_raster_cpd), xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)
+      legend1 <- image_graph(width = 1200 , height=img_set_info$height, bg="black")
+      print(legend)
+      dev.off()
+    img_set_append_anno<-image_append(c(img_set_append,legend1),stack = F)
+    image_write(img_set_append_anno,paste0(outwd,pathway,"FDR_0.1_remapping_style2.png"))
+  }
+```
+
+Rendering pathway map with matched compound information:
+
+``` r
+outwd= paste0(project_dir, dim_reduction_dir, PCA_dir, ion_images_dir)
+library(magick)
+library(flextable)
+library(ggplot2)
+library(grid)
+library(stringr)
+Pathway_matched_sig_summary<-Pathway_matched_all
+Pathway_matched_sig_summary<-Pathway_matched_sig_summary[!duplicated(Pathway_matched_sig_summary[,c( "Matched.Compound", "Matched.Form","Dim" )]),]
+
+
+Pathway_matched_sig_summary$CPD_name<-cpd.info$cpd.name[match(Pathway_matched_sig_summary$Matched.Compound,cpd.info$id)]
+Pathway_matched_sig_summary$CPD_name<-str_remove_all(Pathway_matched_sig_summary$CPD_name,"^Beta-|^Alpha-|^alpha-")
+Pathway_matched_sig_summary$CPD_name<-str_replace_all(Pathway_matched_sig_summary$CPD_name,"yl","yl ")
+Pathway_matched_sig_summary$CPD_name_width<-str_width(Pathway_matched_sig_summary$CPD_name)
+Pathway_matched_sig_summary$CPD_name<-str_wrap(Pathway_matched_sig_summary$CPD_name,width = 15,whitespace_only = T)
+Pathway_matched_sig_summary$Isotype<-NA
+Pathway_matched_sig_summary$Isotype[str_detect(Pathway_matched_sig_summary$Matched.Form,"13C6") ]<-"SIL_C6"
+Pathway_matched_sig_summary$Isotype[!str_detect(Pathway_matched_sig_summary$Matched.Form,"13C6") ]<-"Normal"
+
+for (pathway in unique(Pathway_matched_sig_summary$Pathway)){
+  Pathway_matched_sig_summary_subset <- Pathway_matched_sig_summary[Pathway_matched_sig_summary$Pathway==pathway,]
+  Pathway_matched_sig_summary_subset_subset <- Pathway_matched_sig_summary_subset %>% group_by(Query.Mass) %>% summarize(CPD_name = paste(unique(unlist(CPD_name)), collapse = "; "), Isotype = paste(unique(unlist(Isotype)),collapse = "\n\n"), Dim = paste(unique(Dim), collapse = ","))
+  Pathway_matched_sig_summary_subset_subset$Dim<-str_remove_all(Pathway_matched_sig_summary_subset_subset$Dim,"Dim.")
+ img_set<-magick::image_read(paste0(outwd,"/", Pathway_matched_sig_summary_subset_subset$Query.Mass,".png"))
+ 
+ 
+ for (Cpd in 1:nrow(Pathway_matched_sig_summary_subset_subset)){
+      img_info<-image_info(img_set)
+      CPD_name=unique(unlist(str_split(Pathway_matched_sig_summary_subset_subset$CPD_name[Cpd],"\n\n")))
+      
+      Isotype=unique(unlist(str_split(Pathway_matched_sig_summary_subset_subset$Isotype[Cpd],"\n\n")))
+      Dim = Pathway_matched_sig_summary_subset_subset$Dim[Cpd]
+      tb<-data.frame(CPD_name=CPD_name,Isotype=Isotype, Dim = Dim)
+      #colnames(tb)<-c("CPD_name","Isotype", "Dim")
+      tb<-as_tibble(tb)
+      set_flextable_defaults(font.size =10)
+ }
+    img_set_append<-image_append(img_set,stack = T)
+    img_set_info<-image_info(img_set_append)
+    tb<-as_tibble(Pathway_matched_sig_summary_subset_subset)
+      set_flextable_defaults(font.size =10)
+      ft_raster_cpd <- tb %>%
+  as.data.frame(.) %>% flextable::flextable() %>% flextable::delete_part(part = "header") %>% 
+        bg( bg = "transparent", part = "all") %>%
+        flextable::color(color = "white") %>% border_remove %>%
+        height_all(height = 1) %>%
+        hrule(rule = "exact")
   
+     ft_raster_cpd<-ft_raster_cpd %>% 
+        flextable::as_raster()
+      legend <- image_blank(width = 1500, height=img_set_info$height, color="black")
+      legend <- image_ggplot(legend) + theme_void() +
+        annotation_custom(rasterGrob(ft_raster_cpd), xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)
+      legend1 <- image_graph(width = 1500, height=img_set_info$height, bg="black")
+      print(legend)
+      dev.off()
+    img_set_append_anno<-image_append(c(img_set_append,legend1),stack = F)
+    image_write(img_set_append_anno,paste0(outwd,pathway,"FDR_0.1_remapping_all.png"))
+    
+    
+      tb<-as_tibble(Pathway_matched_sig_summary_subset_subset[,c("CPD_name","Isotype", "Dim")])
+      set_flextable_defaults(font.size =10)
+      ft_raster_cpd <- tb %>%
+  as.data.frame(.) %>% flextable::flextable() %>% flextable::delete_part(part = "header") %>% 
+        bg( bg = "transparent", part = "all") %>%
+        flextable::color(color = "white") %>% border_remove %>%
+        height_all(height = 1) %>%
+        hrule(rule = "exact")
      ft_raster_cpd<-ft_raster_cpd %>% 
         flextable::as_raster()
       legend <- image_blank(width = 1200, height=img_set_info$height, color="black")
@@ -2230,10 +2221,8 @@ for (pathway in unique(Pathway_matched_sig_summary$Pathway)){
       print(legend)
       dev.off()
 
-    # header <- image_blank(width = img_set_info$width, height=img_set_info$width/10/3,color = "black")
-    # header<-image_annotate(header,paste(y,z),gravity = "West",size=img_set_info$width/10/4,color = "white")
     img_set_append_anno<-image_append(c(img_set_append,legend1),stack = F)
-    image_write(img_set_append_anno,paste0(outwd,pathway,"FDR_0.1_remapping_style2.png"))
+    image_write(img_set_append_anno,paste0(outwd,pathway,"FDR_0.1_remapping_style2_all.png"))
   }
 ```
 
