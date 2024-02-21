@@ -43,7 +43,7 @@ Please set a project folder here, the files will be available in this folder for
 
 ```{r, eval=F }
  
-project_dir <- "~/Manuscript_guo2023/" 
+project_dir <- "~/data/" 
 
 dir.create(project_dir)
 
@@ -569,6 +569,21 @@ install.packages("BiocManager")
 BiocManager::install("Cardinal")
 
 #MetaboAnalystR
+metanr_packages <- function(){
+metr_pkgs <- c("impute", "pcaMethods", "globaltest", "GlobalAncova", "Rgraphviz", "preprocessCore", "genefilter", "SSPA", "sva", "limma", "KEGGgraph", "siggenes","BiocParallel", "MSnbase", "multtest", "RBGL", "edgeR", "fgsea", "devtools", "crmn")
+list_installed <- installed.packages()
+new_pkgs <- subset(metr_pkgs, !(metr_pkgs %in% list_installed[, "Package"]))
+if(length(new_pkgs)!=0){if (!requireNamespace("BiocManager", quietly = TRUE))
+        install.packages("BiocManager")
+        BiocManager::install(new_pkgs)
+        print(c(new_pkgs, " packages added..."))
+    }
+
+if((length(new_pkgs)<1)){
+        print("No new packages added...")
+    }
+}
+metanr_packages()
 install.packages("devtools")
 library(devtools)
 devtools::install_github("xia-lab/MetaboAnalystR", build = TRUE, build_vignettes = TRUE, build_manual =T)
@@ -606,14 +621,18 @@ install.packages("ggpubr")
 ```
 
 
-# 2. Working directory setup
+# 2. Working directory setup and data pre-processing
+ Working directory setup
+```{r, eval=F}
 
 ```{r, eval=F }
 library(MetaboAnalystR)
 library(Cardinal)
 
 #change to your own project directory here
-project_dir <- "~/Manuscript/test/"
+project_dir <- "~/data/"
+
+Raw_data_dir <- "/raw/"
 
 large_files_dir <- "/large_files/"
 spatial_alignment_dir <- "/spatial_alignment/"
@@ -634,6 +653,62 @@ dir.create(paste0(project_dir,visualization_dir))
 
 #data infromation 
 fileinfo_v2 <- readr::read_csv(paste0(project_dir,"/fileinfo_v2.csv"))
+
+```
+
+data pre-processing: 
+Note: this step require a large amount of memory and time, it is recommended to run it on a high performance computing cluster.
+```{r,eval=F}
+library(HiTMaP)
+library(BiocParallel)
+library(Cardinal)
+library(ggplot2)
+library(readr)
+wd=paste0(project_dir, Raw_data_dir)
+setwd(wd)
+fileinfo_v2 <- read_csv(paste0(project_dir,"/fileinfo_v2.csv"))
+register(SnowParam())
+options(Cardinal.verbose=FALSE)
+options(Cardinal.progress=FALSE)
+RNGkind("Mersenne-Twister")
+parallel=try(detectCores()/2)
+  if (parallel<1 | is.null(parallel)){parallel=1}
+  
+  BPPARAM=bpparam("SnowParam")
+  BiocParallel::bpworkers(BPPARAM)=6
+  bpprogressbar(BPPARAM)=TRUE
+  setCardinalBPPARAM(BPPARAM)
+  
+datafile_base<-fileinfo_v2$filenames
+datafile<-fileinfo_v2$filenames
+datafile<-paste0(wd,"/",datafile)
+
+#pre-processing
+HiTMaP:::Preprocessing_segmentation(datafile_base,
+                                     workdir=wd,
+                                     segmentation_num=5,
+                                     ppm=5,Bypass_Segmentation=T,
+                                     Segmentation=c("spatialKMeans","spatialShrunkenCentroids","Virtual_segmentation","none","def_file"),
+                                     Segmentation_def="segmentation_def.csv",
+                                     Segmentation_ncomp="auto-detect",
+                                     Segmentation_variance_coverage=0.8,
+                                     Smooth_range=1,
+                                     colorstyle="Set1",
+                                     Virtual_segmentation_rankfile=NULL,
+                                     rotate=fileinfo_v2,
+                                     BPPARAM=BPPARAM,
+                                     preprocess=list(force_preprocess=F,
+                                                     use_preprocessRDS=T,
+                                                     smoothSignal=list(method="Disable"),
+                                                     reduceBaseline=list(method="locmin"),
+                                                     peakPick=list(method="adaptive"),
+                                                     peakAlign=list(tolerance=5, units="ppm", level="global"),
+                                                     normalize=list(method="reference",mz=229.04734)))
+
+#data binning
+HiTMaP:::Load_IMS_decov_combine(datafile_base,workdir=wd,SPECTRUM_batch="overall",
+                                 ppm=8 ,threshold=0.00000005,rotate=paste0(wd,"/","fileinfo_v2.csv"),mzrange="auto-detect",
+                                 deconv_peaklist="Load_exist",preprocessRDS_rotated=F)
 
 ```
 

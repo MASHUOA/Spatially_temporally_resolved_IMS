@@ -1,3 +1,56 @@
+Annotation and visualisation of spatially and temporally resolved,
+isotopically-labelled imaging mass spectrometry metabolomics data
+================
+Dingchang Shi, Dr George Guo, Dr Gus Grey
+
+- [1. Initialization settings and
+  functions](#1-initialization-settings-and-functions)
+  - [1.1 Raw data, processed spectrum, and
+    result](#11-raw-data-processed-spectrum-and-result)
+  - [1.2 Global functions (shown in the
+    RMD)](#12-global-functions-shown-in-the-rmd)
+  - [1.3 Package Setup](#13-package-setup)
+- [2. Working directory setup and data
+  pre-processing](#2-working-directory-setup-and-data-pre-processing)
+- [3. Lens coordinate rescaling and
+  alignment](#3-lens-coordinate-rescaling-and-alignment)
+- [4. Lens-to-lens hexagonal binning](#4-lens-to-lens-hexagonal-binning)
+- [5. Time-scale transformation of the lens
+  data](#5-time-scale-transformation-of-the-lens-data)
+- [6. Dimensionality reduction, top loading feature selection and
+  K-means
+  segmentation](#6-dimensionality-reduction-top-loading-feature-selection-and-k-means-segmentation)
+  - [6.1 Principle conponent analysis and top loading feature
+    selection](#61-principle-conponent-analysis-and-top-loading-feature-selection)
+  - [6.2 UMAP (all bio rep)](#62-umap-all-bio-rep)
+  - [6.3 t-SNE (all bio rep)](#63-t-sne-all-bio-rep)
+- [7. Metabolite library construction
+  (function)](#7-metabolite-library-construction-function)
+- [8. 1st round metabolomic annotation and pathway enrichment for all
+  detected m/z
+  features](#8-1st-round-metabolomic-annotation-and-pathway-enrichment-for-all-detected-mz-features)
+  - [8.1 Metabolite annotation and pathway
+    enrichment](#81-metabolite-annotation-and-pathway-enrichment)
+  - [8.2 pathway summary](#82-pathway-summary)
+- [9. Feature scoring and FDR controlled
+  filtering](#9-feature-scoring-and-fdr-controlled-filtering)
+- [10. 2nd round metabolomic annotation and pathway enrichment within
+  FDR filtered
+  features](#10-2nd-round-metabolomic-annotation-and-pathway-enrichment-within-fdr-filtered-features)
+- [11. Feature visualization](#11-feature-visualization)
+  - [11.1 Selected bio rep](#111-selected-bio-rep)
+  - [11.2 Visualization](#112-visualization)
+  - [11.3 Metabolite annotation in pathway
+    format](#113-metabolite-annotation-in-pathway-format)
+- [12. Shrunk data](#12-shrunk-data)
+  - [12.1 PCA visualisation](#121-pca-visualisation)
+  - [12.2 PCA K means](#122-pca-k-means)
+  - [12.3 UMAP K means](#123-umap-k-means)
+  - [12.4 t-SNE K means](#124-t-sne-k-means)
+- [13. Ploting classfied time series
+  data](#13-ploting-classfied-time-series-data)
+  - [13.1 PCA error bar (PC4 and 5)](#131-pca-error-bar-pc4-and-5)
+
 # 1. Initialization settings and functions
 
 ## 1.1 Raw data, processed spectrum, and result
@@ -12,7 +65,7 @@ by using the R code below: Please set a project folder here, the files
 will be available in this folder for later steps.
 
 ``` r
-project_dir <- "~/Manuscript_guo2023/" 
+project_dir <- "~/data/" 
 
 dir.create(project_dir)
 
@@ -541,6 +594,21 @@ install.packages("BiocManager")
 BiocManager::install("Cardinal")
 
 #MetaboAnalystR
+metanr_packages <- function(){
+metr_pkgs <- c("impute", "pcaMethods", "globaltest", "GlobalAncova", "Rgraphviz", "preprocessCore", "genefilter", "SSPA", "sva", "limma", "KEGGgraph", "siggenes","BiocParallel", "MSnbase", "multtest", "RBGL", "edgeR", "fgsea", "devtools", "crmn")
+list_installed <- installed.packages()
+new_pkgs <- subset(metr_pkgs, !(metr_pkgs %in% list_installed[, "Package"]))
+if(length(new_pkgs)!=0){if (!requireNamespace("BiocManager", quietly = TRUE))
+        install.packages("BiocManager")
+        BiocManager::install(new_pkgs)
+        print(c(new_pkgs, " packages added..."))
+    }
+
+if((length(new_pkgs)<1)){
+        print("No new packages added...")
+    }
+}
+metanr_packages()
 install.packages("devtools")
 library(devtools)
 devtools::install_github("xia-lab/MetaboAnalystR", build = TRUE, build_vignettes = TRUE, build_manual =T)
@@ -576,14 +644,18 @@ install.packages("wesanderson")
 install.packages("ggpubr")
 ```
 
-# 2. Working directory setup
+# 2. Working directory setup and data pre-processing
+
+Working directory setup
 
 ``` r
 library(MetaboAnalystR)
 library(Cardinal)
 
 #change to your own project directory here
-project_dir <- "~/Manuscript/test/"
+project_dir <- "~/data/"
+
+Raw_data_dir <- "/raw/"
 
 large_files_dir <- "/large_files/"
 spatial_alignment_dir <- "/spatial_alignment/"
@@ -604,6 +676,63 @@ dir.create(paste0(project_dir,visualization_dir))
 
 #data infromation 
 fileinfo_v2 <- readr::read_csv(paste0(project_dir,"/fileinfo_v2.csv"))
+```
+
+data pre-processing: Note: this step require a large amount of memory
+and time, it is recommended to run it on a high performance computing
+cluster.
+
+``` r
+library(HiTMaP)
+library(BiocParallel)
+library(Cardinal)
+library(ggplot2)
+library(readr)
+wd=paste0(project_dir, Raw_data_dir)
+setwd(wd)
+fileinfo_v2 <- read_csv(paste0(project_dir,"/fileinfo_v2.csv"))
+register(SnowParam())
+options(Cardinal.verbose=FALSE)
+options(Cardinal.progress=FALSE)
+RNGkind("Mersenne-Twister")
+parallel=try(detectCores()/2)
+  if (parallel<1 | is.null(parallel)){parallel=1}
+  
+  BPPARAM=bpparam("SnowParam")
+  BiocParallel::bpworkers(BPPARAM)=6
+  bpprogressbar(BPPARAM)=TRUE
+  setCardinalBPPARAM(BPPARAM)
+  
+datafile_base<-fileinfo_v2$filenames
+datafile<-fileinfo_v2$filenames
+datafile<-paste0(wd,"/",datafile)
+
+#pre-processing
+HiTMaP:::Preprocessing_segmentation(datafile_base,
+                                     workdir=wd,
+                                     segmentation_num=5,
+                                     ppm=5,Bypass_Segmentation=T,
+                                     Segmentation=c("spatialKMeans","spatialShrunkenCentroids","Virtual_segmentation","none","def_file"),
+                                     Segmentation_def="segmentation_def.csv",
+                                     Segmentation_ncomp="auto-detect",
+                                     Segmentation_variance_coverage=0.8,
+                                     Smooth_range=1,
+                                     colorstyle="Set1",
+                                     Virtual_segmentation_rankfile=NULL,
+                                     rotate=fileinfo_v2,
+                                     BPPARAM=BPPARAM,
+                                     preprocess=list(force_preprocess=F,
+                                                     use_preprocessRDS=T,
+                                                     smoothSignal=list(method="Disable"),
+                                                     reduceBaseline=list(method="locmin"),
+                                                     peakPick=list(method="adaptive"),
+                                                     peakAlign=list(tolerance=5, units="ppm", level="global"),
+                                                     normalize=list(method="reference",mz=229.04734)))
+
+#data binning
+HiTMaP:::Load_IMS_decov_combine(datafile_base,workdir=wd,SPECTRUM_batch="overall",
+                                 ppm=8 ,threshold=0.00000005,rotate=paste0(wd,"/","fileinfo_v2.csv"),mzrange="auto-detect",
+                                 deconv_peaklist="Load_exist",preprocessRDS_rotated=F)
 ```
 
 # 3. Lens coordinate rescaling and alignment
