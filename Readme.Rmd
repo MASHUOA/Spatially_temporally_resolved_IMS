@@ -1558,27 +1558,7 @@ print(p)
     dev.off()    
     write.csv(peak_res_sum_bind,paste0(wd,"/",score_method,"_","peak_res_sum_bind_",FDR_cutoff,".csv"),row.names = F)
     write.csv(peak_res_sum_2nd_bind,paste0(wd,"/",score_method,"_","peak_res_sum_2nd_bind_",FDR_cutoff,".csv"),row.names = F)
-#     
-#     for (score_method in c("Equal-intensity-SQRT",
-#                            "Mix-SQRT","Equal-SQRT",
-#                            "balanced-SQRT",
-#                            "SQRT","SQRTP")){
-#       dir.create(paste0(wd,"/",score_method))
-#     for (timepoint in colnames(spectrum_to_match)){
-#     peaklist<-data.frame(m.z=as.numeric(rownames(spectrum_to_match)),intensities=spectrum_to_match[,timepoint])
-#     
-# library(HiTMaP)  
-# library(BiocParallel)
-#    HiTMaP:::Cpd_spectrum_match_rescore(cpd_list,peaklist,wd=paste0(wd,"/",score_method),
-#                                        SPECTRUM_batch=timepoint,
-#                                        BPPARAM=SerialParam(),
-#                                      atom_isotope_sub=NULL,
-#                                      ppm=10,
-#                                      score_method=score_method,
-#                                      adjust_score=F,
-#                                      FDR_cutoff=0.15,Decoy_search=T)
-#    }
-#     }
+
 ```
 
 # 10. 2nd round metabolomic annotation and pathway enrichment within FDR filtered features
@@ -2451,12 +2431,6 @@ fig<- ggplot(dims.pca.full, aes(x= Dim.1, y= Dim.2))+xlim(-200, 450)+ylim(-200, 
 
 
 
-# fig<- fig + geom_point(data = dims.pca.full[!(dims.pca.full$region.final=="NS"), ],
-#                   stat = "identity", position = "identity", show.legend = FALSE,
-#                   size = 1, alpha = 0.6, aes(color=region.final)
-#                   )+ scale_colour_manual(values=  c("#ff0027","#0092ff", "#800080","#20b2aa"))+
-#       theme_void()
-
 fig<- fig + geom_point(data = dims.pca.full[!(dims.pca.full$region.final=="NS"), ],
                   stat = "identity", position = "identity", show.legend = FALSE,
                   size = 1, alpha = .6,aes(color=region.final)
@@ -2630,27 +2604,6 @@ fig<- fig + geom_point(data = Time_merged_umap_full[! (Time_merged_umap_full$Reg
                   stat_ellipse(data = Time_merged_umap_full[! (Time_merged_umap_full$Region =="NS"),], 
                   type = "t", linetype = "twodash", geom = "polygon", aes(color = Region, fill = Region), level = 0.75, size = 0.5, alpha = 0.2) + scale_fill_manual(values=  c("#ff0027","#0092ff", "#800080","#20b2aa"))+
                   theme_void()+ theme(legend.position = "none")
-fig  
-  #      theme_dr() +
-  # theme(panel.grid.major = element_blank(),
-  #       panel.grid.minor = element_blank())
-
-# 
-# fig<- fig +  
-#   geom_segment(aes(x = min(Time_merged_umap$UMAP_1)-1, y = min(Time_merged_umap$UMAP_2)-2,
-#                   xend = min(Time_merged_umap$UMAP_1) + 2, 
-#                    yend = min(Time_merged_umap$UMAP_2)),
-#                     colour = "black", linewidth = 0.6, arrow = arrow(length = unit(0.2, "cm"))) +
-#   geom_segment(aes(x = min(Time_merged_umap$UMAP_1)-1, y = min(Time_merged_umap$UMAP_2)-2,
-#                   xend = min(Time_merged_umap$UMAP_1) , 
-#                    yend = min(Time_merged_umap$UMAP_2)+ 2),
-#                     colour = "black", linewidth = 0.6, arrow = arrow(length = unit(0.2, "cm"))) + 
-#     annotate("text", x = min(Time_merged_umap$UMAP_1) + 1, y = min(Time_merged_umap$UMAP_2) -1,
-#            label = "UMAP_1", color = "black", size = 3, fontface = "bold") + 
-#     annotate("text", x = min(Time_merged_umap$UMAP_1) -1, y = min(Time_merged_umap$UMAP_2) +1,
-#            label = "UMAP_2", color = "black", size = 3, fontface = "bold")
-
-
 
 print(fig)
 dev.off()
@@ -2731,15 +2684,6 @@ fig<- ggplot(Time_merged_tsne_full, aes(x= tSNE_1, y= tSNE_2))+
       theme_void()
 
 
-
-# fig<- fig + geom_point(data = Time_merged_tsne_full[! (Time_merged_tsne_full$Region =="NS"),],
-#                   stat = "identity", position = "identity", show.legend = FALSE,
-#                   size = 1, alpha = 0.6,aes(color=Region)
-#                   )+ scale_colour_manual(values=  c("#ff0027","#0092ff", "#800080","#20b2aa"))+
-#                   stat_ellipse(data = Time_merged_tsne_full[! (Time_merged_tsne_full$Region =="NS"),], 
-#                   type = "t", linetype = "twodash", aes(color = Region, fill = Region), level = 0.75, size = 0.5, alpha = 0.2) + 
-#                   scale_fill_manual(values=  c("#ff0027","#0092ff", "#800080","#20b2aa"))+
-#                   theme_void()+ theme(legend.position = "none")
 
 
 
