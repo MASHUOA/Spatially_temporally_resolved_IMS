@@ -1990,9 +1990,12 @@ image_write(image_stack,paste0(project_dir, visualization_dir, heximg_dir,"/imag
 
 }
 }
-
-![Kinetic images](Resource/kinetic images.png)
 ```
+
+<figure>
+<img src="Resource/kinetic%20images.png" alt="Kinetic images" />
+<figcaption aria-hidden="true">Kinetic images</figcaption>
+</figure>
 
 ## 11.3 Metabolite annotation in pathway format
 
