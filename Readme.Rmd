@@ -2044,7 +2044,7 @@ image_write(image_stack,paste0(project_dir, visualization_dir, heximg_dir,"/imag
 }
 }
 
-
+![Kinetic images](Resource/kinetic images.png)
 
 ```
 
