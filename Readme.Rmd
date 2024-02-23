@@ -2970,7 +2970,4 @@ png(paste0(wd,"PCA_label_image","_anno_SIL_cpd_","summarized","_timeseries_plot_
 print(p)
 dev.off()
 
- 
-
-
 ```
