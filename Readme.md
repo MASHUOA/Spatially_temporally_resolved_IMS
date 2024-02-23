@@ -2906,3 +2906,8 @@ png(paste0(wd,"PCA_label_image","_anno_SIL_cpd_","summarized","_timeseries_plot_
 print(p)
 dev.off()
 ```
+
+<figure>
+<img src="Resource/time-series%20plot.png" alt="Time-series plot" />
+<figcaption aria-hidden="true">Time-series plot</figcaption>
+</figure>
