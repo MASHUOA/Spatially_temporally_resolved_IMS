@@ -1,56 +1,3 @@
-Annotation and visualisation of spatially and temporally resolved,
-isotopically-labelled imaging mass spectrometry metabolomics data
-================
-Dingchang Shi, Dr George Guo, Dr Gus Grey
-
-- [1. Initialization settings and
-  functions](#1-initialization-settings-and-functions)
-  - [1.1 Raw data, processed spectrum, and
-    result](#11-raw-data-processed-spectrum-and-result)
-  - [1.2 Global functions (shown in the
-    RMD)](#12-global-functions-shown-in-the-rmd)
-  - [1.3 Package Setup](#13-package-setup)
-- [2. Working directory setup and data
-  pre-processing](#2-working-directory-setup-and-data-pre-processing)
-- [3. Lens coordinate rescaling and
-  alignment](#3-lens-coordinate-rescaling-and-alignment)
-- [4. Lens-to-lens hexagonal binning](#4-lens-to-lens-hexagonal-binning)
-- [5. Time-scale transformation of the lens
-  data](#5-time-scale-transformation-of-the-lens-data)
-- [6. Dimensionality reduction, top loading feature selection and
-  K-means
-  segmentation](#6-dimensionality-reduction-top-loading-feature-selection-and-k-means-segmentation)
-  - [6.1 Principle conponent analysis and top loading feature
-    selection](#61-principle-conponent-analysis-and-top-loading-feature-selection)
-  - [6.2 UMAP (all bio rep)](#62-umap-all-bio-rep)
-  - [6.3 t-SNE (all bio rep)](#63-t-sne-all-bio-rep)
-- [7. Metabolite library construction
-  (function)](#7-metabolite-library-construction-function)
-- [8. 1st round metabolomic annotation and pathway enrichment for all
-  detected m/z
-  features](#8-1st-round-metabolomic-annotation-and-pathway-enrichment-for-all-detected-mz-features)
-  - [8.1 Metabolite annotation and pathway
-    enrichment](#81-metabolite-annotation-and-pathway-enrichment)
-  - [8.2 pathway summary](#82-pathway-summary)
-- [9. Feature scoring and FDR controlled
-  filtering](#9-feature-scoring-and-fdr-controlled-filtering)
-- [10. 2nd round metabolomic annotation and pathway enrichment within
-  FDR filtered
-  features](#10-2nd-round-metabolomic-annotation-and-pathway-enrichment-within-fdr-filtered-features)
-- [11. Feature visualization](#11-feature-visualization)
-  - [11.1 Selected bio rep](#111-selected-bio-rep)
-  - [11.2 Visualization](#112-visualization)
-  - [11.3 Metabolite annotation in pathway
-    format](#113-metabolite-annotation-in-pathway-format)
-- [12. Shrunk data](#12-shrunk-data)
-  - [12.1 PCA visualisation](#121-pca-visualisation)
-  - [12.2 PCA K means](#122-pca-k-means)
-  - [12.3 UMAP K means](#123-umap-k-means)
-  - [12.4 t-SNE K means](#124-t-sne-k-means)
-- [13. Ploting classfied time series
-  data](#13-ploting-classfied-time-series-data)
-  - [13.1 PCA error bar (PC4 and 5)](#131-pca-error-bar-pc4-and-5)
-
 # 1. Initialization settings and functions
 
 ## 1.1 Raw data, processed spectrum, and result
@@ -1565,27 +1512,6 @@ print(p)
     dev.off()    
     write.csv(peak_res_sum_bind,paste0(wd,"/",score_method,"_","peak_res_sum_bind_",FDR_cutoff,".csv"),row.names = F)
     write.csv(peak_res_sum_2nd_bind,paste0(wd,"/",score_method,"_","peak_res_sum_2nd_bind_",FDR_cutoff,".csv"),row.names = F)
-#     
-#     for (score_method in c("Equal-intensity-SQRT",
-#                            "Mix-SQRT","Equal-SQRT",
-#                            "balanced-SQRT",
-#                            "SQRT","SQRTP")){
-#       dir.create(paste0(wd,"/",score_method))
-#     for (timepoint in colnames(spectrum_to_match)){
-#     peaklist<-data.frame(m.z=as.numeric(rownames(spectrum_to_match)),intensities=spectrum_to_match[,timepoint])
-#     
-# library(HiTMaP)  
-# library(BiocParallel)
-#    HiTMaP:::Cpd_spectrum_match_rescore(cpd_list,peaklist,wd=paste0(wd,"/",score_method),
-#                                        SPECTRUM_batch=timepoint,
-#                                        BPPARAM=SerialParam(),
-#                                      atom_isotope_sub=NULL,
-#                                      ppm=10,
-#                                      score_method=score_method,
-#                                      adjust_score=F,
-#                                      FDR_cutoff=0.15,Decoy_search=T)
-#    }
-#     }
 ```
 
 # 10. 2nd round metabolomic annotation and pathway enrichment within FDR filtered features
@@ -2064,6 +1990,8 @@ image_write(image_stack,paste0(project_dir, visualization_dir, heximg_dir,"/imag
 
 }
 }
+
+![Kinetic images](Resource/kinetic images.png)
 ```
 
 ## 11.3 Metabolite annotation in pathway format
@@ -2442,12 +2370,6 @@ fig<- ggplot(dims.pca.full, aes(x= Dim.1, y= Dim.2))+xlim(-200, 450)+ylim(-200, 
 
 
 
-# fig<- fig + geom_point(data = dims.pca.full[!(dims.pca.full$region.final=="NS"), ],
-#                   stat = "identity", position = "identity", show.legend = FALSE,
-#                   size = 1, alpha = 0.6, aes(color=region.final)
-#                   )+ scale_colour_manual(values=  c("#ff0027","#0092ff", "#800080","#20b2aa"))+
-#       theme_void()
-
 fig<- fig + geom_point(data = dims.pca.full[!(dims.pca.full$region.final=="NS"), ],
                   stat = "identity", position = "identity", show.legend = FALSE,
                   size = 1, alpha = .6,aes(color=region.final)
@@ -2618,27 +2540,6 @@ fig<- fig + geom_point(data = Time_merged_umap_full[! (Time_merged_umap_full$Reg
                   stat_ellipse(data = Time_merged_umap_full[! (Time_merged_umap_full$Region =="NS"),], 
                   type = "t", linetype = "twodash", geom = "polygon", aes(color = Region, fill = Region), level = 0.75, size = 0.5, alpha = 0.2) + scale_fill_manual(values=  c("#ff0027","#0092ff", "#800080","#20b2aa"))+
                   theme_void()+ theme(legend.position = "none")
-fig  
-  #      theme_dr() +
-  # theme(panel.grid.major = element_blank(),
-  #       panel.grid.minor = element_blank())
-
-# 
-# fig<- fig +  
-#   geom_segment(aes(x = min(Time_merged_umap$UMAP_1)-1, y = min(Time_merged_umap$UMAP_2)-2,
-#                   xend = min(Time_merged_umap$UMAP_1) + 2, 
-#                    yend = min(Time_merged_umap$UMAP_2)),
-#                     colour = "black", linewidth = 0.6, arrow = arrow(length = unit(0.2, "cm"))) +
-#   geom_segment(aes(x = min(Time_merged_umap$UMAP_1)-1, y = min(Time_merged_umap$UMAP_2)-2,
-#                   xend = min(Time_merged_umap$UMAP_1) , 
-#                    yend = min(Time_merged_umap$UMAP_2)+ 2),
-#                     colour = "black", linewidth = 0.6, arrow = arrow(length = unit(0.2, "cm"))) + 
-#     annotate("text", x = min(Time_merged_umap$UMAP_1) + 1, y = min(Time_merged_umap$UMAP_2) -1,
-#            label = "UMAP_1", color = "black", size = 3, fontface = "bold") + 
-#     annotate("text", x = min(Time_merged_umap$UMAP_1) -1, y = min(Time_merged_umap$UMAP_2) +1,
-#            label = "UMAP_2", color = "black", size = 3, fontface = "bold")
-
-
 
 print(fig)
 dev.off()
@@ -2718,15 +2619,6 @@ fig<- ggplot(Time_merged_tsne_full, aes(x= tSNE_1, y= tSNE_2))+
       theme_void()
 
 
-
-# fig<- fig + geom_point(data = Time_merged_tsne_full[! (Time_merged_tsne_full$Region =="NS"),],
-#                   stat = "identity", position = "identity", show.legend = FALSE,
-#                   size = 1, alpha = 0.6,aes(color=Region)
-#                   )+ scale_colour_manual(values=  c("#ff0027","#0092ff", "#800080","#20b2aa"))+
-#                   stat_ellipse(data = Time_merged_tsne_full[! (Time_merged_tsne_full$Region =="NS"),], 
-#                   type = "t", linetype = "twodash", aes(color = Region, fill = Region), level = 0.75, size = 0.5, alpha = 0.2) + 
-#                   scale_fill_manual(values=  c("#ff0027","#0092ff", "#800080","#20b2aa"))+
-#                   theme_void()+ theme(legend.position = "none")
 
 
 
