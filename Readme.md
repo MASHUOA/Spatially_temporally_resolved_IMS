@@ -1,3 +1,7 @@
+Find our published research article on *Scientific Reports*:
+
+<https://doi.org/10.1038/s41598-024-69507-z>
+
 # 1. Initialization settings and functions
 
 ## 1.1 Raw data, processed spectrum, and result
